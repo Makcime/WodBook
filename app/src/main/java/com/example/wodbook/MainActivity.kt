@@ -18,7 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.ui.theme.WodBookTheme
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -31,6 +34,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var buttonLogout: Button
     private lateinit var textView : TextView
     private lateinit var user : FirebaseUser
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var fabAddWod: FloatingActionButton
+    private lateinit var wodAdapter: WodAdapter // Assuming you have a WodAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,5 +66,20 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
             finish()
         }
+
+        recyclerView = findViewById(R.id.recycler_view_wods)
+        fabAddWod = findViewById(R.id.fab_add_wod)
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        wodAdapter = WodAdapter() // Initialize your adapter
+        recyclerView.adapter = wodAdapter
+
+        fabAddWod.setOnClickListener {
+            val intent = Intent(this, AddWodActivity::class.java) // Replace with your 'Add WOD' activity
+            startActivity(intent)
+        }
+
+        // TODO: Load and display WODs from the database
+
     }
 }
