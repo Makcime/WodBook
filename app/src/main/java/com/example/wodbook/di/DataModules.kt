@@ -16,8 +16,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideDataBase(@ApplicationContext context: Context): WodDatabase {
         return Room.databaseBuilder(
             context.applicationContext,
@@ -25,7 +25,9 @@ object DatabaseModule {
             "Wods.db"
         ).build()
     }
+
+    @Provides
+    fun provideTaskDao(database: WodDatabase) : WodDao = database.wodDao()
 }
 
-@Provides
-fun provideTaskDao(database: WodDatabase) : WodDao = database.wodDao()
+

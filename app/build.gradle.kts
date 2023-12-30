@@ -72,8 +72,12 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
     implementation("androidx.databinding:adapters:3.2.0-alpha11")
+    // Room
     implementation("androidx.room:room-common:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+
 
     // Hilt dagger
     implementation("com.google.dagger:hilt-android:2.48")

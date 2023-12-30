@@ -1,7 +1,8 @@
 package com.example.wodbook.data
 
 import android.content.Context
-import androidx.databinding.adapters.Converters
+// import androidx.databinding.adapters.Converters
+import  com.example.wodbook.data.utils.Converters
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
