@@ -16,7 +16,7 @@ interface WodDao {
     suspend fun upsert(wod: WOD)
 
     @Query("UPDATE wod SET doItAgain = :doItAgain WHERE id = :wodId")
-    suspend fun updateDoItAgain(wodId: String, doItAgain: Boolean)
+    suspend fun updateDoItAgain(wodId: Int, doItAgain: Boolean)
 
     @Query("DELETE FROM wod WHERE id = :id")
     suspend fun deleteWod(id: Int)

@@ -11,5 +11,5 @@ data class WOD(
     val picture: String, // File path or URI for the picture, instead of Bitmap
     val dateTime: Date,
     val doItAgain: Boolean,
-    val notes: String
+    val notes: String?
 )

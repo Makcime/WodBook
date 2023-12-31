@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.R
 import com.example.wodbook.data.WOD
 
-class WodAdapter(private val wodList: List<WOD>) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
+class WodAdapter(private var wods: List<WOD>) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
 
     class WodViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.text_view_wod) // Adjust ID based on your layout
+        val textView: TextView = view.findViewById(R.id.text_view_wod)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WodViewHolder {
@@ -20,9 +20,15 @@ class WodAdapter(private val wodList: List<WOD>) : RecyclerView.Adapter<WodAdapt
     }
 
     override fun onBindViewHolder(holder: WodViewHolder, position: Int) {
-        val currentItem = wodList[position]
-        holder.textView.text = currentItem.notes // Adjust based on what you want to display
+        val currentItem = wods[position]
+        holder.textView.text = currentItem.notes
     }
 
-    override fun getItemCount() = wodList.size
+    override fun getItemCount() = wods.size
+
+    fun setWods(wods: List<WOD>) {
+        this.wods = wods
+        notifyDataSetChanged()
+    }
 }
+
