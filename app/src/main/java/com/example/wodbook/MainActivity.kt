@@ -23,22 +23,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
+import com.example.wodbook.domain.UserManager
 import com.example.wodbook.domain.WodAdapter
 import com.example.wodbook.ui.theme.WodBookTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var auth: FirebaseAuth
     private lateinit var buttonLogout: Button
     private lateinit var textView : TextView
-    private lateinit var user : FirebaseUser
+    private lateinit var user : UserManager
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
@@ -50,11 +47,11 @@ class MainActivity : ComponentActivity() {
 
         wodAdapter = WodAdapter()
 
-        auth = Firebase.auth
+        // auth = Firebase.auth
         buttonLogout = findViewById(R.id.btn_logout)
         textView = findViewById(R.id.user_details)
 
-        val user = auth.currentUser
+        val user = UserManager.currentUser
 
         if (user == null) {
             // No user is signed in
@@ -66,7 +63,7 @@ class MainActivity : ComponentActivity() {
         }
 
         buttonLogout.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
+            UserManager.signOut()
 
             // go back to login activity
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
@@ -94,8 +91,8 @@ class MainActivity : ComponentActivity() {
         recyclerView.adapter = wodAdapter
 
         fabAddWod.setOnClickListener {
-            // val intent = Intent(this, AddWodActivity::class.java) // Replace with your 'Add WOD' activity
-            // startActivity(intent)
+            val intent = Intent(this, AddWodActivity::class.java) // Replace with your 'Add WOD' activity
+            startActivity(intent)
         }
 
         // TODO: Load and display WODs from the database
