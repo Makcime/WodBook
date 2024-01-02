@@ -18,8 +18,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wodbook.data.WodDatabase
+import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.WodAdapter
 import com.example.wodbook.ui.theme.WodBookTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -28,6 +31,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -43,6 +47,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        wodAdapter = WodAdapter()
 
         auth = Firebase.auth
         buttonLogout = findViewById(R.id.btn_logout)
@@ -72,7 +78,19 @@ class MainActivity : ComponentActivity() {
         fabAddWod = findViewById(R.id.fab_add_wod)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
-        // wodAdapter = WodAdapter() // Initialize your adapter
+
+        // Initialize the repository (Assuming wodDao is available)
+        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
+        var wodRepository = WodRepository(wodDao)
+
+        user?.let {
+            lifecycleScope.launch {
+                // Load WODs asynchronously and update the adapter
+                val userWods = wodRepository.getWodsByUser(it.uid)
+                wodAdapter.setWods(userWods) // Update your adapter with the new data
+            }
+        }
+
         recyclerView.adapter = wodAdapter
 
         fabAddWod.setOnClickListener {

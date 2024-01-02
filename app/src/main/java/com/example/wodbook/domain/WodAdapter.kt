@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.R
 import com.example.wodbook.data.WOD
 
-class WodAdapter(private var wods: List<WOD>) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
+class WodAdapter(private var wods: List<WOD> = emptyList()) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
 
     class WodViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.text_view_wod)

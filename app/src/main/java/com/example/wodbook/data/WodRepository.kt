@@ -10,7 +10,7 @@ class WodRepository(private val wodDao: WodDao) {
         return wodDao.getWodsByUser(firebaseUid)
     }
 
-    suspend fun insertWod(firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String) {
+    suspend fun insertWod(firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String?) {
         val wod = WOD(
             firebaseUid = firebaseUid,
             picture = picture,

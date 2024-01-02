@@ -2,6 +2,9 @@ package com.example.wodbook
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Switch
 import androidx.lifecycle.lifecycleScope
 import com.example.wodbook.data.WOD
 import com.example.wodbook.data.WodDatabase
@@ -57,7 +60,13 @@ class AddWodActivity : AppCompatActivity() {
 
         // Save the WOD using the repository
         lifecycleScope.launch {
-            wodRepository.insertWod(newWod)
+            wodRepository.insertWod(
+                firebaseUid = newWod.firebaseUid,
+                picture = newWod.picture,
+                dateTime = newWod.dateTime,
+                doItAgain = newWod.doItAgain,
+                notes = newWod.notes
+            )
             finish() // Close the activity after saving
         }
     }
