@@ -1,13 +1,14 @@
 package com.example.wodbook.domain
 
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.wodbook.R
 import com.example.wodbook.data.WOD
 
@@ -27,12 +28,17 @@ class WodAdapter(private var wods: List<WOD> = emptyList()) : RecyclerView.Adapt
         val currentItem = wods[position]
         holder.textView.text = currentItem.notes
 
-        // Load the image using Glide
-        val uri = Uri.parse(currentItem.picture) // Convert String to Uri
-        Glide.with(holder.itemView.context)
-            .load(uri) // URL or file path
-            .placeholder(R.drawable.ic_placeholder_foreground) // Replace with your placeholder image
-            .into(holder.imageView)
+        val uri = Uri.parse(currentItem.picture)
+        try {
+            holder.itemView.context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val drawable = Drawable.createFromStream(inputStream, uri.toString())
+                holder.imageView.setImageDrawable(drawable)
+            }
+        } catch (e: Exception) {
+            // Log the exception and set the placeholder image
+            Log.e("WodAdapter", "Error loading image", e)
+            holder.imageView.setImageResource(R.drawable.ic_placeholder_foreground) // Replace with your placeholder drawable resource ID
+        }
     }
 
     override fun getItemCount() = wods.size
