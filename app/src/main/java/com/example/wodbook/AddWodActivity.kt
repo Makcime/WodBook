@@ -1,11 +1,12 @@
 package com.example.wodbook
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Switch
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.wodbook.data.WOD
 import com.example.wodbook.data.WodDatabase
@@ -21,9 +22,12 @@ class AddWodActivity : AppCompatActivity() {
     private lateinit var switchDoItAgain: Switch
     private lateinit var editTextNotes: EditText
     private lateinit var buttonSaveWod: Button
-
     private val wodRepository: WodRepository by lazy {
         WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
+    }
+
+    companion object {
+        private const val PICK_IMAGE_REQUEST = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +35,6 @@ class AddWodActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_wod)
 
         initializeUI()
-        buttonSaveWod.setOnClickListener { saveWod() }
     }
 
     private fun initializeUI() {
@@ -40,6 +43,13 @@ class AddWodActivity : AppCompatActivity() {
         switchDoItAgain = findViewById(R.id.switchDoItAgain)
         editTextNotes = findViewById(R.id.editTextNotes)
         buttonSaveWod = findViewById(R.id.buttonSaveWod)
+
+        editTextPictureUri.setOnClickListener {
+            val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST)
+        }
+
+        buttonSaveWod.setOnClickListener { saveWod() }
     }
 
     private fun saveWod() {
@@ -67,6 +77,14 @@ class AddWodActivity : AppCompatActivity() {
                 notes = newWod.notes
             )
             finish()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            val selectedImageUri = data.data
+            editTextPictureUri.setText(selectedImageUri.toString())
         }
     }
 

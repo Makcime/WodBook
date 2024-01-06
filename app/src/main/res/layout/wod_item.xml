@@ -1,6 +1,24 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/text_view_wod"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="16dp"
-    android:textAppearance="?attr/textAppearanceListItem" />
+    tools:ignore="ExtraText">
+
+    <ImageView
+        android:id="@+id/image_view_wod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    android:src="@drawable/ic_placeholder_foreground"
+    android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/text_view_wod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <!-- You can add other views here if needed -->
+
+</LinearLayout>

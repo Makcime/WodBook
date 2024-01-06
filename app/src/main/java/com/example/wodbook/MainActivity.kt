@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.data.WodDatabase
@@ -75,7 +76,9 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler_view_wods)
         fabAddWod = findViewById(R.id.fab_add_wod)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView = findViewById(R.id.recycler_view_wods)
+        recyclerView.layoutManager = GridLayoutManager(this, 2) // 2 columns in grid
+        recyclerView.adapter = wodAdapter
 
         // Initialize the repository (Assuming wodDao is available)
         val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
