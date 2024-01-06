@@ -22,12 +22,10 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var buttonLogout: Button
-    private lateinit var textView : TextView
-    private lateinit var user : UserManager
-
+    private lateinit var textView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
-    private lateinit var wodAdapter: WodAdapter // Assuming you have a WodAdapter
+    private lateinit var wodAdapter: WodAdapter
 
     companion object {
         private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
@@ -37,61 +35,48 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        wodAdapter = WodAdapter()
+        initializeUI()
+        checkAndRequestPermission()
+    }
 
-        // auth = Firebase.auth
+    private fun initializeUI() {
+        setupLogoutButton()
+        setupRecyclerView()
+        setupFloatingActionButton()
+        loadWods()
+    }
+
+    private fun setupLogoutButton() {
         buttonLogout = findViewById(R.id.btn_logout)
-        textView = findViewById(R.id.user_details)
-
-        val user = UserManager.currentUser
-
-        if (user == null) {
-            // No user is signed in
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-        } else {
-            textView.setText(user.email)
-        }
-
         buttonLogout.setOnClickListener {
             UserManager.signOut()
-
-            // go back to login activity
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            redirectToLogin()
         }
+    }
 
+    private fun setupRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view_wods)
-        fabAddWod = findViewById(R.id.fab_add_wod)
-
-        recyclerView = findViewById(R.id.recycler_view_wods)
-        recyclerView.layoutManager = GridLayoutManager(this, 2) // 2 columns in grid
+        recyclerView.layoutManager = GridLayoutManager(this, 2) // 2 columns grid layout
+        wodAdapter = WodAdapter()
         recyclerView.adapter = wodAdapter
+    }
 
-        // Initialize the repository (Assuming wodDao is available)
-        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
-        var wodRepository = WodRepository(wodDao)
+    private fun setupFloatingActionButton() {
+        fabAddWod = findViewById(R.id.fab_add_wod)
+        fabAddWod.setOnClickListener {
+            val intent = Intent(this, AddWodActivity::class.java)
+            startActivity(intent)
+        }
+    }
 
-        user?.let {
+    private fun loadWods() {
+        UserManager.currentUser?.let { user ->
             lifecycleScope.launch {
-                // Load WODs asynchronously and update the adapter
-                val userWods = wodRepository.getWodsByUser(it.uid)
-                wodAdapter.setWods(userWods) // Update your adapter with the new data
+                val wodRepository = WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
+                val userWods = wodRepository.getWodsByUser(user.uid)
+                wodAdapter.setWods(userWods)
             }
         }
-
-        recyclerView.adapter = wodAdapter
-
-        fabAddWod.setOnClickListener {
-            val intent = Intent(this, AddWodActivity::class.java) // Replace with your 'Add WOD' activity
-            startActivity(intent)
-        }
-
-        // TODO: Load and display WODs from the database
-
-        checkAndRequestPermission()
     }
 
     private fun checkAndRequestPermission() {
@@ -100,15 +85,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun redirectToLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
-            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                // Permission granted, handle the granted permission
-            } else {
-                // Permission denied, handle the denial
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                // Handle permission denial
             }
         }
     }
-
 }
