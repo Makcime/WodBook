@@ -2,7 +2,7 @@ package com.example.wodbook.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
+import java.util.Date
 
 @Entity(tableName = "wod")
 data class WOD(

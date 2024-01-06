@@ -1,9 +1,7 @@
 package com.example.wodbook.data.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import com.example.wodbook.data.WOD
 
