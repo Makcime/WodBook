@@ -1,5 +1,6 @@
 package com.example.wodbook.domain
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,8 +28,9 @@ class WodAdapter(private var wods: List<WOD> = emptyList()) : RecyclerView.Adapt
         holder.textView.text = currentItem.notes
 
         // Load the image using Glide
+        val uri = Uri.parse(currentItem.picture) // Convert String to Uri
         Glide.with(holder.itemView.context)
-            .load(currentItem.picture) // URL or file path
+            .load(uri) // URL or file path
             .placeholder(R.drawable.ic_placeholder_foreground) // Replace with your placeholder image
             .into(holder.imageView)
     }
