@@ -15,4 +15,6 @@
     <string name="wod_notes">Notes...</string>
     <string name="wod_date">Date</string>
     <string name="delete">Delete</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="logged_in_as">Logged in as: %1$s</string>
 </resources>

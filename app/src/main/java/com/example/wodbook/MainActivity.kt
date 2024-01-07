@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var buttonLogout: Button
-    private lateinit var textView: TextView
+    private lateinit var userDetails: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
     private lateinit var wodAdapter: WodAdapter
@@ -44,10 +44,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeUI() {
+        seturUserDetails()
         setupLogoutButton()
         setupRecyclerView()
         setupFloatingActionButton()
         loadWods()
+    }
+
+    private fun seturUserDetails() {
+        userDetails = findViewById(R.id.user_details)
+        userDetails.text =
+            getString(
+                R.string.logged_in_as,
+                UserManager.currentUser?.email ?: getString(R.string.anonymous)
+            )
     }
 
     private fun setupLogoutButton() {
