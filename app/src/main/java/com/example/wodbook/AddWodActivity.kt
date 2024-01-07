@@ -16,6 +16,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -121,16 +122,40 @@ class AddWodActivity : AppCompatActivity() {
         buttonSaveWod = findViewById(R.id.buttonSaveWod)
 
         imageViewPicture.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST)
-            } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_EXTERNAL_STORAGE)
-            }
+            showImagePickerOptions()
         }
 
         buttonSaveWod.setOnClickListener { saveWod() }
     }
+
+    private fun showImagePickerOptions() {
+        val options = arrayOf("Take a Picture", "Choose from your Library")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose an option to select an image")
+        builder.setItems(options) { dialog, which ->
+            when (which) {
+                0 -> {
+                    // Placeholder for take picture logic
+                    Toast.makeText(this, "Take picture option selected - feature coming soon.", Toast.LENGTH_LONG).show()
+                }
+                1 -> {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        openGalleryForImage()
+                    } else {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_EXTERNAL_STORAGE)
+                    }
+                }
+            }
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun openGalleryForImage() {
+        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST)
+    }
+
 
     private fun openDateTimePicker() {
         val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->

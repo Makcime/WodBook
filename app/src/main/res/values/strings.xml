@@ -5,7 +5,7 @@
     <string name="password">Password</string>
     <string name="submit">Submit</string>
     <string name="register">Register</string>
-    <string name="click_to_login">Click to login</string>
+    <string name="click_to_login">Go back to login</string>
     <string name="click_to_register">Click to register</string>
     <string name="logout">Logout</string>
     <string name="would_you_do_it_again">Would you do it again?</string>
