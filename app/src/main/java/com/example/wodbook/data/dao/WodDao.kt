@@ -7,7 +7,7 @@ import com.example.wodbook.data.WOD
 
 @Dao
 interface WodDao {
-    @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid")
+    @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid ORDER BY dateTime DESC")
     suspend fun getWodsByUser(firebaseUid: String): List<WOD>
 
     @Query("SELECT * FROM wod WHERE id = :wodId")
