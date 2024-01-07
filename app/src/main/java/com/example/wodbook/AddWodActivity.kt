@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -47,6 +48,7 @@ class AddWodActivity : AppCompatActivity() {
 
         initializeUI()
 
+
         val wodId = intent.getIntExtra(EXTRA_WOD_ID, -1)
         if (wodId != -1) {
             lifecycleScope.launch {
@@ -60,6 +62,8 @@ class AddWodActivity : AppCompatActivity() {
 
     private fun initializeUI() {
         imageViewPicture = findViewById(R.id.imageViewPicture)
+        imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground) // Default placeholder
+
         editTextDateTime = findViewById(R.id.editTextDateTime)
         switchDoItAgain = findViewById(R.id.switchDoItAgain)
         editTextNotes = findViewById(R.id.editTextNotes)
@@ -106,20 +110,46 @@ class AddWodActivity : AppCompatActivity() {
     }
 
     private fun loadWodData(wod: WOD) {
-        editTextDateTime.setText(wod.dateTime.toString())
-        switchDoItAgain.isChecked = wod.doItAgain
-        editTextNotes.setText(wod.notes)
-        imageViewPicture.tag = wod.picture
-        val uri = Uri.parse(wod.picture)
-        imageViewPicture.setImageURI(uri) // Set the image from URI
+        lifecycleScope.launch {
+            if (wod != null) {
+                editTextDateTime.setText(wod.dateTime.toString())
+                switchDoItAgain.isChecked = wod.doItAgain
+                editTextNotes.setText(wod.notes)
+
+                if (wod.picture.isNullOrEmpty()) {
+                    imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground) // Set placeholder
+                } else {
+                    val uri = Uri.parse(wod.picture)
+                    try {
+                        contentResolver.openInputStream(uri)?.use { inputStream ->
+                            val drawable = Drawable.createFromStream(inputStream, uri.toString())
+                            imageViewPicture.setImageDrawable(drawable)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("AddWodActivity", "Error loading image", e)
+                        imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
+                    }
+                }
+            }
+        }
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             val selectedImageUri = data.data
-            imageViewPicture.setImageURI(selectedImageUri)
-            imageViewPicture.tag = selectedImageUri.toString() // Store URI as tag
+            selectedImageUri?.let { uri ->
+                try {
+                    contentResolver.openInputStream(uri)?.use { inputStream ->
+                        val drawable = Drawable.createFromStream(inputStream, uri.toString())
+                        imageViewPicture.setImageDrawable(drawable)
+                    }
+                } catch (e: Exception) {
+                    Log.e("AddWodActivity", "Error loading image", e)
+                    imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
+                }
+            }
         }
     }
 
