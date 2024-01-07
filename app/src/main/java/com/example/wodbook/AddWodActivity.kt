@@ -1,6 +1,8 @@
 package com.example.wodbook
 
 import android.Manifest
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -12,6 +14,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,15 +24,20 @@ import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
+import java.util.Locale
 
 class AddWodActivity : AppCompatActivity() {
 
     private lateinit var imageViewPicture: ImageView
-    private lateinit var editTextDateTime: EditText
+    private lateinit var textViewDateTime: TextView
     private lateinit var switchDoItAgain: Switch
     private lateinit var editTextNotes: EditText
     private lateinit var buttonSaveWod: Button
+
+    private var selectedDateTime: Calendar = Calendar.getInstance()
 
     private val wodRepository: WodRepository by lazy {
         WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
@@ -58,13 +66,21 @@ class AddWodActivity : AppCompatActivity() {
                 }
             }
         }
+
+        textViewDateTime = findViewById(R.id.textViewDateTime)
+        updateDateTimeDisplay()
+
+        textViewDateTime.setOnClickListener {
+            openDateTimePicker()
+        }
+
     }
 
     private fun initializeUI() {
         imageViewPicture = findViewById(R.id.imageViewPicture)
         imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground) // Default placeholder
 
-        editTextDateTime = findViewById(R.id.editTextDateTime)
+        textViewDateTime = findViewById(R.id.textViewDateTime)
         switchDoItAgain = findViewById(R.id.switchDoItAgain)
         editTextNotes = findViewById(R.id.editTextNotes)
         buttonSaveWod = findViewById(R.id.buttonSaveWod)
@@ -81,6 +97,39 @@ class AddWodActivity : AppCompatActivity() {
         buttonSaveWod.setOnClickListener { saveWod() }
     }
 
+    private fun openDateTimePicker() {
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+            selectedDateTime.set(Calendar.YEAR, year)
+            selectedDateTime.set(Calendar.MONTH, month)
+            selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            openTimePicker()
+        }
+
+        DatePickerDialog(this, dateSetListener,
+            selectedDateTime.get(Calendar.YEAR),
+            selectedDateTime.get(Calendar.MONTH),
+            selectedDateTime.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun openTimePicker() {
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+            selectedDateTime.set(Calendar.HOUR_OF_DAY, hour)
+            selectedDateTime.set(Calendar.MINUTE, minute)
+            updateDateTimeDisplay()
+        }
+
+        TimePickerDialog(this, timeSetListener,
+            selectedDateTime.get(Calendar.HOUR_OF_DAY),
+            selectedDateTime.get(Calendar.MINUTE), true
+        ).show()
+    }
+
+    private fun updateDateTimeDisplay() {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        textViewDateTime.text = dateFormat.format(selectedDateTime.time)
+    }
+
     private fun saveWod() {
         val user = UserManager.currentUser
 
@@ -92,7 +141,7 @@ class AddWodActivity : AppCompatActivity() {
         val newWod = WOD(
             firebaseUid = user.uid,
             picture = imageViewPicture.tag.toString(),
-            dateTime = parseDateTime(editTextDateTime.text.toString()),
+            dateTime = parseDateTime(textViewDateTime.text.toString()),
             doItAgain = switchDoItAgain.isChecked,
             notes = editTextNotes.text.toString()
         )
@@ -112,7 +161,7 @@ class AddWodActivity : AppCompatActivity() {
     private fun loadWodData(wod: WOD) {
         lifecycleScope.launch {
             if (wod != null) {
-                editTextDateTime.setText(wod.dateTime.toString())
+                textViewDateTime.setText(wod.dateTime.toString())
                 switchDoItAgain.isChecked = wod.doItAgain
                 editTextNotes.setText(wod.notes)
 

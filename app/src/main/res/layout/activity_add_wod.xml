@@ -17,24 +17,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
 
-    <EditText
-        android:id="@+id/editTextDateTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/wod_date"
+    <TextView
         app:layout_constraintTop_toBottomOf="@id/imageViewPicture"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"/>
+        android:layout_marginEnd="16dp"
+        android:id="@+id/textViewDateTime"
+        android:hint="@string/wod_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:drawablePadding="10dp"
+        android:drawableStart="@drawable/ic_calendar_month"/>
+
 
     <Switch
         android:id="@+id/switchDoItAgain"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/would_you_do_it_again"
-        app:layout_constraintTop_toBottomOf="@id/editTextDateTime"
+        app:layout_constraintTop_toBottomOf="@id/textViewDateTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"
