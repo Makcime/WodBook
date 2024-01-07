@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.dao.WodDao
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

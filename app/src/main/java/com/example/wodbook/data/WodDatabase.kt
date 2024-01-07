@@ -1,13 +1,13 @@
 package com.example.wodbook.data
 
-import android.content.Context
 // import androidx.databinding.adapters.Converters
-import  com.example.wodbook.data.utils.Converters
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.wodbook.data.dao.WodDao
+import com.example.wodbook.data.utils.Converters
 
 @Database(entities = [WOD::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class) // For handling Date type

@@ -1,9 +1,7 @@
 package com.example.wodbook.data.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
 import androidx.room.Upsert
 import com.example.wodbook.data.WOD
 
@@ -11,6 +9,9 @@ import com.example.wodbook.data.WOD
 interface WodDao {
     @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid")
     suspend fun getWodsByUser(firebaseUid: String): List<WOD>
+
+    @Query("SELECT * FROM wod WHERE id = :wodId")
+    suspend fun getWodById(wodId: Int): WOD?
 
     @Upsert
     suspend fun upsert(wod: WOD)

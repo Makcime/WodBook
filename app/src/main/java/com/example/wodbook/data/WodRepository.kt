@@ -1,7 +1,6 @@
 package com.example.wodbook.data
 
 import com.example.wodbook.data.dao.WodDao
-import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 class WodRepository(private val wodDao: WodDao) {
@@ -39,6 +38,10 @@ class WodRepository(private val wodDao: WodDao) {
 
     suspend fun deleteWod(wodId: Int) {
         wodDao.deleteWod(wodId)
+    }
+
+    suspend fun getWodById(wodId: Int): WOD? {
+        return wodDao.getWodById(wodId)
     }
 }
 

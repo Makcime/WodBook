@@ -1,6 +1,23 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/text_view_wod"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:textAppearance="?attr/textAppearanceListItem" />
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/image_view_wod"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_placeholder_foreground"
+        android:contentDescription="@string/wod_image_description" />
+
+    <TextView
+        android:id="@+id/text_view_wod"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textAppearance="?attr/textAppearanceListItem" />
+</LinearLayout>

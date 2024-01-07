@@ -78,6 +78,8 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
+    // Gilde for image view
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // Hilt dagger
     implementation("com.google.dagger:hilt-android:2.48")

@@ -1,102 +1,111 @@
 package com.example.wodbook
 
-import android.content.ContentValues
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
 import com.example.wodbook.domain.WodAdapter
-import com.example.wodbook.ui.theme.WodBookTheme
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var buttonLogout: Button
-    private lateinit var textView : TextView
-    private lateinit var user : UserManager
-
+    private lateinit var textView: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
-    private lateinit var wodAdapter: WodAdapter // Assuming you have a WodAdapter
+    private lateinit var wodAdapter: WodAdapter
+
+    companion object {
+        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initializeUI()
+        checkAndRequestPermission()
+    }
 
-        wodAdapter = WodAdapter()
+    override fun onResume() {
+        super.onResume()
+        loadWods() // Refresh the list of WODs
+    }
 
-        // auth = Firebase.auth
+    private fun initializeUI() {
+        setupLogoutButton()
+        setupRecyclerView()
+        setupFloatingActionButton()
+        loadWods()
+    }
+
+    private fun setupLogoutButton() {
         buttonLogout = findViewById(R.id.btn_logout)
-        textView = findViewById(R.id.user_details)
-
-        val user = UserManager.currentUser
-
-        if (user == null) {
-            // No user is signed in
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-        } else {
-            textView.setText(user.email)
-        }
-
         buttonLogout.setOnClickListener {
             UserManager.signOut()
-
-            // go back to login activity
-            val intent = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
+            redirectToLogin()
         }
+    }
 
+    private fun setupRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view_wods)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+        wodAdapter = WodAdapter(onItemClicked = { wod ->
+            val intent = Intent(this, AddWodActivity::class.java).apply {
+                putExtra(AddWodActivity.EXTRA_WOD_ID, wod.id)
+            }
+            startActivity(intent)
+        })
+        recyclerView.adapter = wodAdapter
+    }
+
+
+    private fun setupFloatingActionButton() {
         fabAddWod = findViewById(R.id.fab_add_wod)
+        fabAddWod.setOnClickListener {
+            val intent = Intent(this, AddWodActivity::class.java)
+            startActivity(intent)
+        }
+    }
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Initialize the repository (Assuming wodDao is available)
-        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
-        var wodRepository = WodRepository(wodDao)
-
-        user?.let {
+    private fun loadWods() {
+        UserManager.currentUser?.let { user ->
             lifecycleScope.launch {
-                // Load WODs asynchronously and update the adapter
-                val userWods = wodRepository.getWodsByUser(it.uid)
-                wodAdapter.setWods(userWods) // Update your adapter with the new data
+                val wodRepository = WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
+                val userWods = wodRepository.getWodsByUser(user.uid)
+                wodAdapter.setWods(userWods)
             }
         }
+    }
 
-        recyclerView.adapter = wodAdapter
-
-        fabAddWod.setOnClickListener {
-            val intent = Intent(this, AddWodActivity::class.java) // Replace with your 'Add WOD' activity
-            startActivity(intent)
+    private fun checkAndRequestPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_EXTERNAL_STORAGE)
         }
+    }
 
-        // TODO: Load and display WODs from the database
+    private fun redirectToLogin() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                // Handle permission denial
+            }
+        }
     }
 }
