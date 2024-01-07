@@ -1,6 +1,7 @@
 package com.example.wodbook
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
@@ -64,7 +65,7 @@ class AddWodActivity : AppCompatActivity() {
             // Enable the delete button
             buttonDeleteWod = findViewById(R.id.buttonDeleteWod)
             buttonDeleteWod.isEnabled = true
-            buttonDeleteWod.setOnClickListener { deleteWod(wodId) }
+            buttonDeleteWod.setOnClickListener { deleteWod() }
 
             // Get the wod
             lifecycleScope.launch {
@@ -84,19 +85,31 @@ class AddWodActivity : AppCompatActivity() {
 
     }
 
-    private fun deleteWod(wodId: Int) {
-        if (this.wodId != -1) {
-            lifecycleScope.launch {
-                try {
-                    wodRepository.deleteWod(this@AddWodActivity.wodId)
-                    Log.d("AddWodActivity", "WOD deleted successfully")
-                    finish() // Close the activity after deletion
-                } catch (e: Exception) {
-                    Log.e("AddWodActivity", "Error deleting WOD", e)
+    private fun deleteWod() {
+        if (wodId != -1) {
+            AlertDialog.Builder(this)
+                .setTitle("Confirm Deletion")
+                .setMessage("Are you sure you want to delete this WOD?")
+                .setPositiveButton("Delete") { dialog, which ->
+                    performDeletion()
                 }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+    }
+
+    private fun performDeletion() {
+        lifecycleScope.launch {
+            try {
+                wodRepository.deleteWod(wodId)
+                Log.d("AddWodActivity", "WOD deleted successfully")
+                finish() // Close the activity after deletion
+            } catch (e: Exception) {
+                Log.e("AddWodActivity", "Error deleting WOD", e)
             }
         }
     }
+
 
     private fun initializeUI() {
         imageViewPicture = findViewById(R.id.imageViewPicture)
