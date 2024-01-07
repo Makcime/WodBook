@@ -138,10 +138,12 @@ class AddWodActivity : AppCompatActivity() {
             return
         }
 
+        Log.d("AddWodActivity", "Selected Date Time: ${selectedDateTime.time}")
+
         val newWod = WOD(
             firebaseUid = user.uid,
             picture = imageViewPicture.tag.toString(),
-            dateTime = parseDateTime(textViewDateTime.text.toString()),
+            dateTime = parseDateTime(selectedDateTime.time.toString()),
             doItAgain = switchDoItAgain.isChecked,
             notes = editTextNotes.text.toString()
         )
