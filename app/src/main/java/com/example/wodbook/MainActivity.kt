@@ -34,9 +34,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initializeUI()
         checkAndRequestPermission()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadWods() // Refresh the list of WODs
     }
 
     private fun initializeUI() {
