@@ -132,33 +132,39 @@ class AddWodActivity : AppCompatActivity() {
 
     private fun saveWod() {
         val user = UserManager.currentUser
-
         if (user == null) {
             redirectToLogin()
             return
         }
 
-        Log.d("AddWodActivity", "Selected Date Time: ${selectedDateTime.time}")
-
         val newWod = WOD(
             firebaseUid = user.uid,
             picture = imageViewPicture.tag.toString(),
-            dateTime = parseDateTime(selectedDateTime.time.toString()),
+            dateTime = selectedDateTime.time,
             doItAgain = switchDoItAgain.isChecked,
             notes = editTextNotes.text.toString()
         )
 
+        // Log the WOD details
+        Log.d("AddWodActivity", "Saving WOD: $newWod")
+
         lifecycleScope.launch {
-            wodRepository.insertWod(
-                firebaseUid = newWod.firebaseUid,
-                picture = newWod.picture,
-                dateTime = newWod.dateTime,
-                doItAgain = newWod.doItAgain,
-                notes = newWod.notes
-            )
-            finish()
+            try {
+                wodRepository.insertWod(
+                    firebaseUid = newWod.firebaseUid,
+                    picture = newWod.picture,
+                    dateTime = newWod.dateTime,
+                    doItAgain = newWod.doItAgain,
+                    notes = newWod.notes
+                )
+                Log.d("AddWodActivity", "WOD saved successfully")
+                finish()
+            } catch (e: Exception) {
+                Log.e("AddWodActivity", "Error saving WOD", e)
+            }
         }
     }
+
 
     private fun loadWodData(wod: WOD) {
         lifecycleScope.launch {

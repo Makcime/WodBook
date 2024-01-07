@@ -1,5 +1,6 @@
 package com.example.wodbook.data
 
+import android.util.Log
 import com.example.wodbook.data.dao.WodDao
 import java.util.Date
 
@@ -10,27 +11,37 @@ class WodRepository(private val wodDao: WodDao) {
     }
 
     suspend fun insertWod(firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String?) {
-        val wod = WOD(
-            firebaseUid = firebaseUid,
-            picture = picture,
-            dateTime = dateTime,
-            doItAgain = doItAgain,
-            notes = notes
-        )
-        wodDao.upsert(wod)
+
+        try {
+            val wod = WOD(
+                firebaseUid = firebaseUid,
+                picture = picture,
+                dateTime = dateTime,
+                doItAgain = doItAgain,
+                notes = notes
+            )
+            wodDao.upsert(wod)
+            Log.d("WodRepository", "WOD inserted successfully")
+        } catch (e: Exception) {
+            Log.e("WodRepository", "Error inserting WOD", e)
+        }
     }
 
     suspend fun editWod(wodId: Int, firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String) {
-        val updatedWod = WOD(
-            id = wodId,
-            firebaseUid = firebaseUid,
-            picture = picture,
-            dateTime = dateTime,
-            doItAgain = doItAgain,
-            notes = notes
-        )
-        wodDao.upsert(updatedWod)
-    }
+        try {
+            val updatedWod = WOD(
+                id = wodId,
+                firebaseUid = firebaseUid,
+                picture = picture,
+                dateTime = dateTime,
+                doItAgain = doItAgain,
+                notes = notes
+            )
+            wodDao.upsert(updatedWod)
+            Log.d("WodRepository", "WOD updated successfully")
+        } catch (e: Exception) {
+            Log.e("WodRepository", "Error updating WOD", e)
+        }
 
     suspend fun toggleDoItAgain(wodId: Int, doItAgain: Boolean) {
         wodDao.updateDoItAgain( wodId, doItAgain)
