@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.R
 import com.example.wodbook.data.WOD
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class WodAdapter(private var wods: List<WOD> = emptyList(),
                  private val onItemClicked: (WOD) -> Unit) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
@@ -29,8 +31,14 @@ class WodAdapter(private var wods: List<WOD> = emptyList(),
     // Binds data to each ViewHolder
     override fun onBindViewHolder(holder: WodViewHolder, position: Int) {
         val currentItem = wods[position]
-        // Display the WOD date in the TextView
-        holder.textView.text = currentItem.dateTime.toString()
+        // Specify your desired date format
+        val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
+
+        // Format the Date object into a String
+        val formattedDate = dateFormat.format(currentItem.dateTime)
+
+        // Display the formatted date in the TextView
+        holder.textView.text = formattedDate
 
         // Load and display the image from URI
         val uri = Uri.parse(currentItem.picture)

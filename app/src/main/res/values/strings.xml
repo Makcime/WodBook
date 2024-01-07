@@ -5,10 +5,17 @@
     <string name="password">Password</string>
     <string name="submit">Submit</string>
     <string name="register">Register</string>
-    <string name="click_to_login">Click to login</string>
+    <string name="click_to_login">Go back to login</string>
     <string name="click_to_register">Click to register</string>
     <string name="logout">Logout</string>
     <string name="would_you_do_it_again">Would you do it again?</string>
     <string name="add_wod">Add a new wod</string>
     <string name="wod_image_description">Wod image</string>
+    <string name="save">Save</string>
+    <string name="wod_notes">Notes...</string>
+    <string name="wod_date">Date</string>
+    <string name="delete">Delete</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="logged_in_as">Logged in as: %1$s</string>
+    <string name="confirm_password">Confirm password</string>
 </resources>

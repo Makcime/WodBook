@@ -20,6 +20,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private lateinit var editTextEmail: TextInputEditText
     private lateinit var editTextPassword: TextInputEditText
+    private lateinit var editTextConfirmPassword: TextInputEditText
     private lateinit var buttonReg: Button
     private lateinit var auth: FirebaseAuth
     private lateinit var progressBar: ProgressBar
@@ -33,6 +34,7 @@ class RegisterActivity : AppCompatActivity() {
 
         editTextEmail = findViewById(R.id.email)
         editTextPassword = findViewById(R.id.password)
+        editTextConfirmPassword = findViewById(R.id.confirm_password)
         buttonReg = findViewById(R.id.btn_register)
         progressBar = findViewById(R.id.pgb_register)
 
@@ -47,12 +49,20 @@ class RegisterActivity : AppCompatActivity() {
             // Code to be executed when button is clicked
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString().trim()
+            val confirmPassword = editTextConfirmPassword.text.toString().trim()
+
             progressBar.visibility = View.VISIBLE
 
-            if (email.isEmpty() || password.isEmpty()) {
-                // One or both fields are empty
-                Toast.makeText(this, "Email and password must not be empty", Toast.LENGTH_LONG).show()
+            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(this, "All fields are required", Toast.LENGTH_LONG).show()
                 progressBar.visibility = View.GONE
+                return@setOnClickListener
+            }
+
+            if (password != confirmPassword) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_LONG).show()
+                progressBar.visibility = View.GONE
+                return@setOnClickListener
             } else {
                 // Both fields have input
                 // Toast.makeText(this, "Email: $email\nPassword: $password", Toast.LENGTH_LONG).show()
