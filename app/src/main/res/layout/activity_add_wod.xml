@@ -32,7 +32,7 @@
         android:padding="16dp"
         android:gravity="center_vertical"
         android:drawablePadding="10dp"
-        android:drawableStart="@drawable/ic_calendar_month"/>
+        app:drawableStartCompat="@drawable/ic_calendar_month" />
 
 
     <Switch
@@ -61,13 +61,29 @@
         android:layout_marginEnd="16dp"/>
 
     <Button
+        android:id="@+id/buttonDeleteWod"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete"
+        android:enabled="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/buttonSaveWod"
+        app:layout_constraintTop_toBottomOf="@id/editTextNotes"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"/>
+
+    <Button
         android:id="@+id/buttonSaveWod"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/save"
-        app:layout_constraintTop_toBottomOf="@id/editTextNotes"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/buttonDeleteWod"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextNotes"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

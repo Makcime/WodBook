@@ -36,6 +36,7 @@ class AddWodActivity : AppCompatActivity() {
     private lateinit var switchDoItAgain: Switch
     private lateinit var editTextNotes: EditText
     private lateinit var buttonSaveWod: Button
+    private lateinit var buttonDeleteWod: Button
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
 
@@ -60,6 +61,12 @@ class AddWodActivity : AppCompatActivity() {
 
         wodId = intent.getIntExtra(EXTRA_WOD_ID, -1)
         if (wodId != -1) {
+            // Enable the delete button
+            buttonDeleteWod = findViewById(R.id.buttonDeleteWod)
+            buttonDeleteWod.isEnabled = true
+            buttonDeleteWod.setOnClickListener { deleteWod(wodId) }
+
+            // Get the wod
             lifecycleScope.launch {
                 val wod = wodRepository.getWodById(wodId)
                 if (wod != null) {
@@ -75,6 +82,20 @@ class AddWodActivity : AppCompatActivity() {
             openDateTimePicker()
         }
 
+    }
+
+    private fun deleteWod(wodId: Int) {
+        if (this.wodId != -1) {
+            lifecycleScope.launch {
+                try {
+                    wodRepository.deleteWod(this@AddWodActivity.wodId)
+                    Log.d("AddWodActivity", "WOD deleted successfully")
+                    finish() // Close the activity after deletion
+                } catch (e: Exception) {
+                    Log.e("AddWodActivity", "Error deleting WOD", e)
+                }
+            }
+        }
     }
 
     private fun initializeUI() {
@@ -127,7 +148,7 @@ class AddWodActivity : AppCompatActivity() {
             selectedDateTime.get(Calendar.MINUTE), true
         ).show()
     }
-    
+
     private fun updateDateTimeDisplay() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         textViewDateTime.text = dateFormat.format(selectedDateTime.time)
