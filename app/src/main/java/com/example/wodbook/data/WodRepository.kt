@@ -42,6 +42,7 @@ class WodRepository(private val wodDao: WodDao) {
         } catch (e: Exception) {
             Log.e("WodRepository", "Error updating WOD", e)
         }
+    }
 
     suspend fun toggleDoItAgain(wodId: Int, doItAgain: Boolean) {
         wodDao.updateDoItAgain( wodId, doItAgain)
