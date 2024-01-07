@@ -27,7 +27,7 @@ class WodRepository(private val wodDao: WodDao) {
         }
     }
 
-    suspend fun editWod(wodId: Int, firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String) {
+    suspend fun editWod(wodId: Int, firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String?) {
         try {
             val updatedWod = WOD(
                 id = wodId,

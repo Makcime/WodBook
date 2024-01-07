@@ -39,6 +39,8 @@ class AddWodActivity : AppCompatActivity() {
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
 
+    private var wodId: Int = -1 // Add this line to store the WOD ID
+
     private val wodRepository: WodRepository by lazy {
         WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
     }
@@ -56,8 +58,7 @@ class AddWodActivity : AppCompatActivity() {
 
         initializeUI()
 
-
-        val wodId = intent.getIntExtra(EXTRA_WOD_ID, -1)
+        wodId = intent.getIntExtra(EXTRA_WOD_ID, -1)
         if (wodId != -1) {
             lifecycleScope.launch {
                 val wod = wodRepository.getWodById(wodId)
@@ -102,6 +103,7 @@ class AddWodActivity : AppCompatActivity() {
             selectedDateTime.set(Calendar.YEAR, year)
             selectedDateTime.set(Calendar.MONTH, month)
             selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            isDateUpdated = true
             openTimePicker()
         }
 
@@ -116,6 +118,7 @@ class AddWodActivity : AppCompatActivity() {
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
             selectedDateTime.set(Calendar.HOUR_OF_DAY, hour)
             selectedDateTime.set(Calendar.MINUTE, minute)
+            isDateUpdated = true
             updateDateTimeDisplay()
         }
 
@@ -124,11 +127,13 @@ class AddWodActivity : AppCompatActivity() {
             selectedDateTime.get(Calendar.MINUTE), true
         ).show()
     }
-
+    
     private fun updateDateTimeDisplay() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
         textViewDateTime.text = dateFormat.format(selectedDateTime.time)
     }
+
+    private var isDateUpdated = false // Flag to track if date has been updated
 
     private fun saveWod() {
         val user = UserManager.currentUser
@@ -137,26 +142,31 @@ class AddWodActivity : AppCompatActivity() {
             return
         }
 
-        val newWod = WOD(
-            firebaseUid = user.uid,
-            picture = imageViewPicture.tag?.toString() ?: "", // Ensure tag is not null
-            dateTime = selectedDateTime.time,
-            doItAgain = switchDoItAgain.isChecked,
-            notes = editTextNotes.text.toString()
-        )
-
-        // Log the WOD details
-        Log.d("AddWodActivity", "Saving WOD: $newWod")
-
         lifecycleScope.launch {
+            val existingWod = if (wodId != -1) wodRepository.getWodById(wodId) else null
+
+            val newPicture = imageViewPicture.tag?.toString() ?: existingWod?.picture ?: ""
+            val newDateTime = if (isDateUpdated) selectedDateTime.time else existingWod?.dateTime ?: Date()
+
             try {
-                wodRepository.insertWod(
-                    firebaseUid = newWod.firebaseUid,
-                    picture = newWod.picture,
-                    dateTime = newWod.dateTime,
-                    doItAgain = newWod.doItAgain,
-                    notes = newWod.notes
-                )
+                if (wodId == -1) {
+                    wodRepository.insertWod(
+                        firebaseUid = user.uid,
+                        picture = newPicture,
+                        dateTime = newDateTime,
+                        doItAgain = switchDoItAgain.isChecked,
+                        notes = editTextNotes.text.toString()
+                    )
+                } else {
+                    wodRepository.editWod(
+                        wodId = wodId,
+                        firebaseUid = user.uid,
+                        picture = newPicture,
+                        dateTime = newDateTime,
+                        doItAgain = switchDoItAgain.isChecked,
+                        notes = editTextNotes.text.toString()
+                    )
+                }
                 Log.d("AddWodActivity", "WOD saved successfully")
                 finish()
             } catch (e: Exception) {
