@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.wodbook.R
 import com.example.wodbook.data.WOD
 
-class WodAdapter(private var wods: List<WOD> = emptyList()) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
-
+class WodAdapter(private var wods: List<WOD> = emptyList(),
+                 private val onItemClicked: (WOD) -> Unit) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
     // ViewHolder class for each WOD item
     class WodViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.image_view_wod)
@@ -44,6 +44,8 @@ class WodAdapter(private var wods: List<WOD> = emptyList()) : RecyclerView.Adapt
             Log.e("WodAdapter", "Error loading image", e)
             holder.imageView.setImageResource(R.drawable.ic_placeholder_foreground) // Placeholder image resource
         }
+
+        holder.itemView.setOnClickListener { onItemClicked(currentItem) }
     }
 
     // Returns the total number of items in the list

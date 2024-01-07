@@ -28,13 +28,33 @@ class AddWodActivity : AppCompatActivity() {
 
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
+        const val EXTRA_WOD_ID = "extra_wod_id"
+
     }
+
+    private var wodId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_wod)
 
         initializeUI()
+
+        wodId = intent.getIntExtra(EXTRA_WOD_ID, -1)
+        if (wodId != -1) {
+            loadWodDataForEditing(wodId)
+        }
+    }
+
+    private fun loadWodDataForEditing(wodId: Int) {
+        lifecycleScope.launch {
+            wodRepository.getWodById(wodId)?.let { wod ->
+                editTextPictureUri.setText(wod.picture)
+                editTextDateTime.setText(wod.dateTime.toString()) // Format date-time properly
+                switchDoItAgain.isChecked = wod.doItAgain
+                editTextNotes.setText(wod.notes)
+            }
+        }
     }
 
     private fun initializeUI() {

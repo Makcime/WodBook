@@ -10,6 +10,9 @@ interface WodDao {
     @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid")
     suspend fun getWodsByUser(firebaseUid: String): List<WOD>
 
+    @Query("SELECT * FROM wod WHERE id = :wodId")
+    suspend fun getWodById(wodId: Int): WOD?
+
     @Upsert
     suspend fun upsert(wod: WOD)
 

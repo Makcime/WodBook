@@ -39,6 +39,10 @@ class WodRepository(private val wodDao: WodDao) {
     suspend fun deleteWod(wodId: Int) {
         wodDao.deleteWod(wodId)
     }
+
+    suspend fun getWodById(wodId: Int): WOD? {
+        return wodDao.getWodById(wodId)
+    }
 }
 
 
