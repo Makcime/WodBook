@@ -139,7 +139,7 @@ class AddWodActivity : AppCompatActivity() {
 
         val newWod = WOD(
             firebaseUid = user.uid,
-            picture = imageViewPicture.tag.toString(),
+            picture = imageViewPicture.tag?.toString() ?: "", // Ensure tag is not null
             dateTime = selectedDateTime.time,
             doItAgain = switchDoItAgain.isChecked,
             notes = editTextNotes.text.toString()
@@ -201,6 +201,7 @@ class AddWodActivity : AppCompatActivity() {
                     contentResolver.openInputStream(uri)?.use { inputStream ->
                         val drawable = Drawable.createFromStream(inputStream, uri.toString())
                         imageViewPicture.setImageDrawable(drawable)
+                        imageViewPicture.tag = uri.toString() // Set the tag to the URI
                     }
                 } catch (e: Exception) {
                     Log.e("AddWodActivity", "Error loading image", e)
@@ -210,13 +211,10 @@ class AddWodActivity : AppCompatActivity() {
         }
     }
 
+
     private fun redirectToLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
 
-    private fun parseDateTime(dateTimeString: String): Date {
-        // Implement date-time parsing logic
-        return Date() // Replace with actual implementation
-    }
 }
