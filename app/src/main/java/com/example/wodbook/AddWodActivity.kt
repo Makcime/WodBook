@@ -1,6 +1,7 @@
 package com.example.wodbook
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -30,6 +31,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import android.app.Activity
+import android.graphics.Bitmap
+import android.os.Environment
+import androidx.core.content.FileProvider
+import java.io.File
+import java.io.IOException
 
 class AddWodActivity : AppCompatActivity() {
 
@@ -41,6 +48,8 @@ class AddWodActivity : AppCompatActivity() {
     private lateinit var buttonDeleteWod: Button
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
+    private var currentPhotoPath: String? = null
+    private var photoURI: Uri? = null
 
     private var wodId: Int = -1 // Add this line to store the WOD ID
 
@@ -52,7 +61,8 @@ class AddWodActivity : AppCompatActivity() {
         private const val PICK_IMAGE_REQUEST = 1
         const val EXTRA_WOD_ID = "extra_wod_id"
         private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
-
+        private const val REQUEST_IMAGE_CAPTURE = 2
+        private const val REQUEST_CAMERA_PERMISSION = 3
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,23 +142,75 @@ class AddWodActivity : AppCompatActivity() {
         val options = arrayOf("Take a Picture", "Choose from your Library")
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Choose an option to select an image")
-        builder.setItems(options) { dialog, which ->
+        builder.setItems(options) { _, which ->
             when (which) {
-                0 -> {
-                    // Placeholder for take picture logic
-                    Toast.makeText(this, "Take picture option selected - feature coming soon.", Toast.LENGTH_LONG).show()
-                }
-                1 -> {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        openGalleryForImage()
-                    } else {
-                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_EXTERNAL_STORAGE)
-                    }
-                }
+                0 -> takePictureFromCamera()
+                1 -> openGalleryForImage()
             }
         }
-        val dialog = builder.create()
-        dialog.show()
+        builder.show()
+    }
+
+    private fun takePictureFromCamera() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            // Ensure that there's a camera activity to handle the intent
+            if (takePictureIntent.resolveActivity(packageManager) != null) {
+                // Create the File where the photo should go
+                val photoFile: File? = try {
+                    createImageFile()
+                } catch (ex: IOException) {
+                    // Error occurred while creating the File
+                    Toast.makeText(this, "Photo file can't be created. Please try again", Toast.LENGTH_SHORT).show()
+                    null
+                }
+                // Continue only if the File was successfully created
+                photoFile?.also {
+                    photoURI = FileProvider.getUriForFile(
+                        this,
+                        "com.example.wodbook.fileprovider", // Change to your app's package
+                        it
+                    )
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                }
+            } else {
+                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_CAMERA_PERMISSION -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    takePictureFromCamera()
+                } else {
+                    Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
+            // ... (Handle other permissions if necessary)
+        }
     }
 
     private fun openGalleryForImage() {
@@ -260,10 +322,15 @@ class AddWodActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            photoURI?.let { uri ->
+                imageViewPicture.setImageURI(uri)
+                imageViewPicture.tag = uri.toString()
+                // You can now use the uri to store in your WOD model
+            }
+        } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             val selectedImageUri = data.data
             selectedImageUri?.let { uri ->
                 try {
