@@ -37,7 +37,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class AddWodActivity : AppCompatActivity() {
+class WodActivity : AppCompatActivity() {
 
     private lateinit var imageViewPicture: ImageView
     private lateinit var textViewDateTime: TextView
@@ -67,7 +67,7 @@ class AddWodActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_wod)
+        setContentView(R.layout.activity_wod)
 
         initializeUI()
 
@@ -113,10 +113,10 @@ class AddWodActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 wodRepository.deleteWod(wodId)
-                Log.d("AddWodActivity", "WOD deleted successfully")
+                Log.d("WodActivity", "WOD deleted successfully")
                 finish() // Close the activity after deletion
             } catch (e: Exception) {
-                Log.e("AddWodActivity", "Error deleting WOD", e)
+                Log.e("WodActivity", "Error deleting WOD", e)
             }
         }
     }
@@ -307,10 +307,10 @@ class AddWodActivity : AppCompatActivity() {
                         notes = editTextNotes.text.toString()
                     )
                 }
-                Log.d("AddWodActivity", "WOD saved successfully")
+                Log.d("WodActivity", "WOD saved successfully")
                 finish()
             } catch (e: Exception) {
-                Log.e("AddWodActivity", "Error saving WOD", e)
+                Log.e("WodActivity", "Error saving WOD", e)
             }
         }
     }
@@ -333,7 +333,7 @@ class AddWodActivity : AppCompatActivity() {
                             imageViewPicture.setImageDrawable(drawable)
                         }
                     } catch (e: Exception) {
-                        Log.e("AddWodActivity", "Error loading image", e)
+                        Log.e("WodActivity", "Error loading image", e)
                         imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
                     }
                 }
@@ -359,7 +359,7 @@ class AddWodActivity : AppCompatActivity() {
                         imageViewPicture.tag = uri.toString() // Set the tag to the URI
                     }
                 } catch (e: Exception) {
-                    Log.e("AddWodActivity", "Error loading image", e)
+                    Log.e("WodActivity", "Error loading image", e)
                     imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
                 }
             }

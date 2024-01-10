@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler_view_wods)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
         wodAdapter = WodAdapter(onItemClicked = { wod ->
-            val intent = Intent(this, AddWodActivity::class.java).apply {
-                putExtra(AddWodActivity.EXTRA_WOD_ID, wod.id)
+            val intent = Intent(this, WodActivity::class.java).apply {
+                putExtra(WodActivity.EXTRA_WOD_ID, wod.id)
             }
             startActivity(intent)
         })
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupFloatingActionButton() {
         fabAddWod = findViewById(R.id.fab_add_wod)
         fabAddWod.setOnClickListener {
-            val intent = Intent(this, AddWodActivity::class.java)
+            val intent = Intent(this, WodActivity::class.java)
             startActivity(intent)
         }
     }

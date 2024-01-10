@@ -27,7 +27,7 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".AddWodActivity"
+            android:name=".WodActivity"
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
