@@ -1,7 +1,6 @@
 package com.example.wodbook
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -32,7 +31,8 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import android.app.Activity
-import android.graphics.Bitmap
+import android.content.ContentValues
+import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
 import java.io.File
@@ -48,7 +48,6 @@ class AddWodActivity : AppCompatActivity() {
     private lateinit var buttonDeleteWod: Button
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
-    private var currentPhotoPath: String? = null
     private var photoURI: Uri? = null
 
     private var wodId: Int = -1 // Add this line to store the WOD ID
@@ -60,11 +59,12 @@ class AddWodActivity : AppCompatActivity() {
     companion object {
         private const val PICK_IMAGE_REQUEST = 1
         const val EXTRA_WOD_ID = "extra_wod_id"
-        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
-        private const val REQUEST_IMAGE_CAPTURE = 2
-        private const val REQUEST_CAMERA_PERMISSION = 3
+        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 2
+        private const val REQUEST_IMAGE_CAPTURE = 3
+        private const val REQUEST_CAMERA_PERMISSION = 4
+        private const val REQUEST_CAMERA_AND_STORAGE_PERMISSION = 5
+        private const val PICTURES_DIRECTORY = "/Pictures/WodBook"
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_wod)
@@ -153,49 +153,31 @@ class AddWodActivity : AppCompatActivity() {
 
     private fun takePictureFromCamera() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            val imageUri = createImageFile()
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            // Ensure that there's a camera activity to handle the intent
-            if (takePictureIntent.resolveActivity(packageManager) != null) {
-                // Create the File where the photo should go
-                val photoFile: File? = try {
-                    createImageFile()
-                } catch (ex: IOException) {
-                    // Error occurred while creating the File
-                    Toast.makeText(this, "Photo file can't be created. Please try again", Toast.LENGTH_SHORT).show()
-                    null
-                }
-                // Continue only if the File was successfully created
-                photoFile?.also {
-                    photoURI = FileProvider.getUriForFile(
-                        this,
-                        "com.example.wodbook.fileprovider", // Change to your app's package
-                        it
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                }
-            } else {
-                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
-            }
+            photoURI = imageUri
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         } else {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
         }
     }
 
     @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
+    private fun createImageFile(): Uri {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_${timeStamp}_")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "WodBook")
+            }
         }
+
+        return contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            ?: throw IOException("Failed to create new MediaStore record.")
     }
+
 
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -207,7 +189,16 @@ class AddWodActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show()
                 }
-                return
+            }
+            REQUEST_CAMERA_AND_STORAGE_PERMISSION -> {
+                // Check if both permissions have been granted
+                if (grantResults.size >= 2 &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    takePictureFromCamera()
+                } else {
+                    Toast.makeText(this, "Camera and Storage permissions are required.", Toast.LENGTH_SHORT).show()
+                }
             }
             // ... (Handle other permissions if necessary)
         }
