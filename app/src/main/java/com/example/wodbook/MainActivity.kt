@@ -92,7 +92,8 @@ class MainActivity : AppCompatActivity() {
     private fun loadWods() {
         UserManager.currentUser?.let { user ->
             lifecycleScope.launch {
-                val wodRepository = WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
+                val wodRepository =
+                    WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
                 val userWods = wodRepository.getWodsByUser(user.uid)
                 wodAdapter.setWods(userWods)
             }
@@ -100,8 +101,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAndRequestPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                REQUEST_CODE_READ_EXTERNAL_STORAGE
+            )
         }
     }
 
@@ -110,7 +119,11 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {

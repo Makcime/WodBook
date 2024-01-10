@@ -10,7 +10,13 @@ class WodRepository(private val wodDao: WodDao) {
         return wodDao.getWodsByUser(firebaseUid)
     }
 
-    suspend fun insertWod(firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String?) {
+    suspend fun insertWod(
+        firebaseUid: String,
+        picture: String,
+        dateTime: Date,
+        doItAgain: Boolean,
+        notes: String?
+    ) {
 
         try {
             val wod = WOD(
@@ -27,7 +33,14 @@ class WodRepository(private val wodDao: WodDao) {
         }
     }
 
-    suspend fun editWod(wodId: Int, firebaseUid: String, picture: String, dateTime: Date, doItAgain: Boolean, notes: String?) {
+    suspend fun editWod(
+        wodId: Int,
+        firebaseUid: String,
+        picture: String,
+        dateTime: Date,
+        doItAgain: Boolean,
+        notes: String?
+    ) {
         try {
             val updatedWod = WOD(
                 id = wodId,
@@ -45,7 +58,7 @@ class WodRepository(private val wodDao: WodDao) {
     }
 
     suspend fun toggleDoItAgain(wodId: Int, doItAgain: Boolean) {
-        wodDao.updateDoItAgain( wodId, doItAgain)
+        wodDao.updateDoItAgain(wodId, doItAgain)
     }
 
     suspend fun deleteWod(wodId: Int) {

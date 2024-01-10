@@ -24,7 +24,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var buttonReg: Button
     private lateinit var auth: FirebaseAuth
     private lateinit var progressBar: ProgressBar
-    private lateinit var loginNow : TextView
+    private lateinit var loginNow: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,14 +1,18 @@
 package com.example.wodbook
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
@@ -26,17 +30,12 @@ import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import android.app.Activity
-import android.content.ContentValues
-import android.os.Build
-import android.os.Environment
-import androidx.core.content.FileProvider
-import java.io.File
-import java.io.IOException
 
 class AddWodActivity : AppCompatActivity() {
 
@@ -65,6 +64,7 @@ class AddWodActivity : AppCompatActivity() {
         private const val REQUEST_CAMERA_AND_STORAGE_PERMISSION = 5
         private const val PICTURES_DIRECTORY = "/Pictures/WodBook"
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_wod)
@@ -152,25 +152,37 @@ class AddWodActivity : AppCompatActivity() {
     }
 
     private fun takePictureFromCamera() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val imageUri = createImageFile()
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             photoURI = imageUri
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CAMERA_PERMISSION
+            )
         }
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): Uri {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp: String =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_${timeStamp}_")
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "WodBook")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + File.separator + "WodBook"
+                )
             }
         }
 
@@ -179,25 +191,38 @@ class AddWodActivity : AppCompatActivity() {
     }
 
 
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             REQUEST_CAMERA_PERMISSION -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     takePictureFromCamera()
                 } else {
-                    Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Camera permission is required to take pictures.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+
             REQUEST_CAMERA_AND_STORAGE_PERMISSION -> {
                 // Check if both permissions have been granted
                 if (grantResults.size >= 2 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED
+                ) {
                     takePictureFromCamera()
                 } else {
-                    Toast.makeText(this, "Camera and Storage permissions are required.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Camera and Storage permissions are required.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             // ... (Handle other permissions if necessary)
@@ -219,7 +244,8 @@ class AddWodActivity : AppCompatActivity() {
             openTimePicker()
         }
 
-        DatePickerDialog(this, dateSetListener,
+        DatePickerDialog(
+            this, dateSetListener,
             selectedDateTime.get(Calendar.YEAR),
             selectedDateTime.get(Calendar.MONTH),
             selectedDateTime.get(Calendar.DAY_OF_MONTH)
@@ -234,7 +260,8 @@ class AddWodActivity : AppCompatActivity() {
             updateDateTimeDisplay()
         }
 
-        TimePickerDialog(this, timeSetListener,
+        TimePickerDialog(
+            this, timeSetListener,
             selectedDateTime.get(Calendar.HOUR_OF_DAY),
             selectedDateTime.get(Calendar.MINUTE), true
         ).show()
@@ -258,7 +285,8 @@ class AddWodActivity : AppCompatActivity() {
             val existingWod = if (wodId != -1) wodRepository.getWodById(wodId) else null
 
             val newPicture = imageViewPicture.tag?.toString() ?: existingWod?.picture ?: ""
-            val newDateTime = if (isDateUpdated) selectedDateTime.time else existingWod?.dateTime ?: Date()
+            val newDateTime =
+                if (isDateUpdated) selectedDateTime.time else existingWod?.dateTime ?: Date()
 
             try {
                 if (wodId == -1) {
