@@ -5,7 +5,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -59,6 +61,13 @@ class MainActivity : AppCompatActivity() {
 
         setUpRecyclerView()
         setUpFloatingActionButtons()
+        setUpSwitchFilter()
+    }
+
+    private fun setUpSwitchFilter() {
+        findViewById<Switch>(R.id.switch_filter).setOnCheckedChangeListener { _, isChecked ->
+            loadWods(isChecked)
+        }
     }
 
     private fun setUpUserDetails() {
@@ -94,17 +103,19 @@ class MainActivity : AppCompatActivity() {
         findViewById<FloatingActionButton>(R.id.fab_random_wod).setOnClickListener {
             displayRandomWod()
         }
-
-        findViewById<ToggleButton>(R.id.toggle_filter).setOnCheckedChangeListener { _, isChecked ->
-            loadWods(isChecked)
-        }
     }
 
     private fun displayRandomWod() {
         lifecycleScope.launch {
-            UserManager.currentUser?.uid?.let { uid ->
-                wodRepository.getRandomWod(uid)?.let { wod ->
-                    showWodFullScreen(wod)
+            UserManager.currentUser?.let { user ->
+                val randomWod = wodRepository.getRandomWod(user.uid)
+                if (randomWod != null) {
+                    // Handle the WOD, e.g., show it in full screen
+                    showWodFullScreen(randomWod)
+                } else {
+                    // Show a Toast message if no WOD is found
+                    Toast.makeText(this@MainActivity,
+                        getString(R.string.no_good_wod_found_to_display), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -119,7 +130,11 @@ class MainActivity : AppCompatActivity() {
     private fun loadWods(filterDoItAgain: Boolean = false) {
         UserManager.currentUser?.uid?.let { uid ->
             lifecycleScope.launch {
-                val wods = if (filterDoItAgain) wodRepository.getWodsDoItAgain(uid) else wodRepository.getWodsByUser(uid)
+                val wods = if (filterDoItAgain) {
+                    wodRepository.getWodsDoItAgain(uid)
+                } else {
+                    wodRepository.getWodsByUser(uid)
+                }
                 wodAdapter.setWods(wods)
             }
         }

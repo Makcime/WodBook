@@ -34,16 +34,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_logout" />
 
-    <ToggleButton
-        android:id="@+id/toggle_filter"
+    <TextView
+        android:id="@+id/textView_switch_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOn="Good Wods only"
-        android:textOff="All Wods"
+        android:text="@string/click_to_display_good_wods_only"
+        app:layout_constraintBottom_toBottomOf="@id/switch_filter"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/switch_filter"
+        app:layout_constraintEnd_toStartOf="@id/switch_filter"
+        android:layout_marginEnd="0dp" />
+
+    <Switch
+        android:id="@+id/switch_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintEnd_toStartOf="@id/fab_add_wod"
-        android:layout_margin="16dp" />
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_wods"
@@ -51,11 +61,8 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/fab_add_wod"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintVertical_bias="1.0" />
-
+        app:layout_constraintTop_toBottomOf="@id/switch_filter" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_wod"
         android:layout_width="wrap_content"
