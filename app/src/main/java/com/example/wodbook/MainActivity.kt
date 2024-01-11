@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var userDetails: TextView
     private lateinit var recyclerView: RecyclerView
+    private lateinit var switchFilter: Switch
+
     private lateinit var wodAdapter: WodAdapter
     private lateinit var wodRepository: WodRepository
 
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadWods()
+        loadWods(switchFilter.isChecked)
     }
 
     private fun initRepository() {
@@ -65,7 +67,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpSwitchFilter() {
-        findViewById<Switch>(R.id.switch_filter).setOnCheckedChangeListener { _, isChecked ->
+        switchFilter = findViewById(R.id.switch_filter)
+        switchFilter.setOnCheckedChangeListener { _, isChecked ->
             loadWods(isChecked)
         }
     }
