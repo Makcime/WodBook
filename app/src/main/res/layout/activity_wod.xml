@@ -17,6 +17,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonEditPicture"
+        android:layout_width="54dp"
+        android:layout_height="52dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="8dp"
+        android:elevation="4dp"
+        android:src="@drawable/ic_add_photo"
+        app:layout_constraintBottom_toBottomOf="@id/imageViewPicture"
+        app:layout_constraintEnd_toEndOf="@id/imageViewPicture"
+        app:layout_constraintRight_toRightOf="@id/imageViewPicture"
+        app:layout_constraintTop_toBottomOf="@id/imageViewPicture"
+        app:layout_constraintVertical_bias="0.518" />
+
     <TextView
         android:id="@+id/textViewDateTime"
         android:layout_width="match_parent"
@@ -32,8 +46,7 @@
         app:drawableStartCompat="@drawable/ic_calendar_month"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageViewPicture" />
-
+        app:layout_constraintTop_toBottomOf="@id/buttonEditPicture" />
 
     <Switch
         android:id="@+id/switchDoItAgain"

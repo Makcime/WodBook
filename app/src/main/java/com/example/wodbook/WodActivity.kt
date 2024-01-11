@@ -29,6 +29,7 @@ import com.example.wodbook.data.WOD
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -45,6 +46,7 @@ class WodActivity : AppCompatActivity() {
     private lateinit var editTextNotes: EditText
     private lateinit var buttonSaveWod: Button
     private lateinit var buttonDeleteWod: Button
+    private lateinit var buttonEditPicture: FloatingActionButton
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
     private var photoURI: Uri? = null
@@ -132,6 +134,18 @@ class WodActivity : AppCompatActivity() {
         buttonSaveWod = findViewById(R.id.buttonSaveWod)
 
         imageViewPicture.setOnClickListener {
+            photoURI?.let { uri ->
+                val intent = Intent(this, ShowImageActivity::class.java).apply {
+                    putExtra("image_uri", uri.toString())
+                }
+                startActivity(intent)
+            } ?: Toast.makeText(this, "No image to show", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Inside initializeUI() method:
+        buttonEditPicture = findViewById(R.id.buttonEditPicture)
+        buttonEditPicture.setOnClickListener {
             showImagePickerOptions()
         }
 
@@ -327,6 +341,7 @@ class WodActivity : AppCompatActivity() {
                     imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground) // Set placeholder
                 } else {
                     val uri = Uri.parse(wod.picture)
+                    photoURI = uri
                     try {
                         contentResolver.openInputStream(uri)?.use { inputStream ->
                             val drawable = Drawable.createFromStream(inputStream, uri.toString())
@@ -347,7 +362,6 @@ class WodActivity : AppCompatActivity() {
             photoURI?.let { uri ->
                 imageViewPicture.setImageURI(uri)
                 imageViewPicture.tag = uri.toString()
-                // You can now use the uri to store in your WOD model
             }
         } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             val selectedImageUri = data.data
@@ -358,6 +372,7 @@ class WodActivity : AppCompatActivity() {
                         imageViewPicture.setImageDrawable(drawable)
                         imageViewPicture.tag = uri.toString() // Set the tag to the URI
                     }
+                    photoURI = uri // Update photoURI here
                 } catch (e: Exception) {
                     Log.e("WodActivity", "Error loading image", e)
                     imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
@@ -365,6 +380,7 @@ class WodActivity : AppCompatActivity() {
             }
         }
     }
+
 
 
     private fun redirectToLogin() {
