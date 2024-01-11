@@ -24,4 +24,7 @@ interface WodDao {
 
     @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid AND doItAgain = 1 ORDER BY RANDOM() LIMIT 1")
     suspend fun getRandomWodByUser(firebaseUid: String): WOD?
+
+    @Query("SELECT * FROM wod WHERE firebaseUid = :firebaseUid AND doItAgain = :doItAgain ORDER BY dateTime DESC")
+    suspend fun getWodsByUserAndDoItAgain(firebaseUid: String, doItAgain: Boolean): List<WOD>
 }

@@ -34,6 +34,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_logout" />
 
+    <ToggleButton
+        android:id="@+id/toggle_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOn="Good Wods only"
+        android:textOff="All Wods"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintEnd_toStartOf="@id/fab_add_wod"
+        android:layout_margin="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_wods"

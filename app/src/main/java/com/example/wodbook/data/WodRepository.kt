@@ -73,6 +73,10 @@ class WodRepository(private val wodDao: WodDao) {
     suspend fun getRandomWod(firebaseUid: String): WOD? {
         return wodDao.getRandomWodByUser(firebaseUid)
     }
+
+    suspend fun getWodsDoItAgain(firebaseUid: String): List<WOD> {
+        return wodDao.getWodsByUserAndDoItAgain(firebaseUid, true)
+    }
 }
 
 

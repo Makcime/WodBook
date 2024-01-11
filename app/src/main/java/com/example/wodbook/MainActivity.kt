@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
     private lateinit var fabRandomWod: FloatingActionButton
+    private lateinit var toggleFilter: ToggleButton
+
     private lateinit var wodAdapter: WodAdapter
     private lateinit var wodRepository: WodRepository
 
@@ -37,12 +40,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        initializeUI()
-        checkAndRequestPermission()
-
         // Initialize wodRepository
         val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
         wodRepository = WodRepository(wodDao)
+
+        initializeUI()
+        checkAndRequestPermission()
     }
 
     override fun onResume() {
@@ -51,15 +54,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeUI() {
-        seturUserDetails()
+        setupUserDetails()
         setupLogoutButton()
         setupRandomButton()
         setupRecyclerView()
         setupFloatingActionButton()
+        setupToggleFilter()
         loadWods()
     }
 
-    private fun seturUserDetails() {
+    private fun setupToggleFilter() {
+        toggleFilter = findViewById(R.id.toggle_filter)
+        toggleFilter.setOnCheckedChangeListener { _, isChecked ->
+            loadWods(isChecked)
+        }
+    }
+
+    private fun setupUserDetails() {
         userDetails = findViewById(R.id.user_details)
         userDetails.text =
             getString(
@@ -120,13 +131,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadWods() {
+    private fun loadWods(filterDoItAgain: Boolean = false) {
         UserManager.currentUser?.let { user ->
             lifecycleScope.launch {
-                val wodRepository =
-                    WodRepository(WodDatabase.getDatabase(applicationContext).wodDao())
-                val userWods = wodRepository.getWodsByUser(user.uid)
-                wodAdapter.setWods(userWods)
+                val wods = if (filterDoItAgain) {
+                    wodRepository.getWodsDoItAgain(user.uid)
+                } else {
+                    wodRepository.getWodsByUser(user.uid)
+                }
+                wodAdapter.setWods(wods)
             }
         }
     }
