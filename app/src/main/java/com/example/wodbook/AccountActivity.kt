@@ -15,6 +15,10 @@ class AccountActivity : AppCompatActivity() {
 
     private lateinit var editTextUsername: TextInputEditText
     private lateinit var editTextEmail: TextInputEditText
+    private lateinit var editTextNewPassword: TextInputEditText
+    private lateinit var editTextConfirmPassword: TextInputEditText
+
+
     private lateinit var buttonSave: Button
     private lateinit var buttonDelete: Button
     private lateinit var buttonCancel: Button
@@ -32,6 +36,10 @@ class AccountActivity : AppCompatActivity() {
     private fun initUI() {
         editTextUsername = findViewById(R.id.username)
         editTextEmail = findViewById(R.id.email)
+        editTextNewPassword = findViewById(R.id.password)
+        editTextConfirmPassword = findViewById(R.id.confirm_password)
+
+
         buttonSave = findViewById(R.id.btn_save)
         buttonDelete = findViewById(R.id.btn_delete)
         buttonCancel = findViewById(R.id.btn_cancel)
@@ -50,29 +58,44 @@ class AccountActivity : AppCompatActivity() {
 
     private fun updateUserProfile() {
         val user = auth.currentUser
-        val email = editTextEmail.text.toString().trim()
         val username = editTextUsername.text.toString().trim()
+        val newPassword = editTextNewPassword.text.toString().trim()
+        val confirmPassword = editTextConfirmPassword.text.toString().trim()
 
         progressBar.visibility = View.VISIBLE
+
+        // Check if the passwords match
+        if (newPassword != confirmPassword) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+            progressBar.visibility = View.GONE
+            return
+        }
 
         val profileUpdates = userProfileChangeRequest {
             displayName = username
         }
 
-        user?.updateProfile(profileUpdates)?.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                user.updateEmail(email).addOnCompleteListener { emailUpdateTask ->
-                    progressBar.visibility = View.GONE
-                    if (emailUpdateTask.isSuccessful) {
-                        Toast.makeText(baseContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                        redirectToMain()
-                    } else {
-                        Toast.makeText(baseContext, "Failed to update email", Toast.LENGTH_SHORT).show()
+        user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileUpdateTask ->
+            if (profileUpdateTask.isSuccessful) {
+                // Update password if it's not empty
+                if (newPassword.isNotEmpty()) {
+                    user.updatePassword(newPassword).addOnCompleteListener { passwordUpdateTask ->
+                        if (passwordUpdateTask.isSuccessful) {
+                            Toast.makeText(this, "Profile and password updated successfully", Toast.LENGTH_SHORT).show()
+                            redirectToMain()
+                        } else {
+                            Toast.makeText(this, "Failed to update password", Toast.LENGTH_SHORT).show()
+                        }
+                        progressBar.visibility = View.GONE
                     }
+                } else {
+                    Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                    redirectToMain()
+                    progressBar.visibility = View.GONE
                 }
             } else {
+                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
                 progressBar.visibility = View.GONE
-                Toast.makeText(baseContext, "Failed to update profile", Toast.LENGTH_SHORT).show()
             }
         }
     }
