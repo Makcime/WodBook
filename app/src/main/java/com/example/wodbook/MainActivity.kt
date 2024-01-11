@@ -23,138 +23,111 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var buttonLogout: Button
     private lateinit var userDetails: TextView
     private lateinit var recyclerView: RecyclerView
-    private lateinit var fabAddWod: FloatingActionButton
-    private lateinit var fabRandomWod: FloatingActionButton
-    private lateinit var toggleFilter: ToggleButton
-
     private lateinit var wodAdapter: WodAdapter
     private lateinit var wodRepository: WodRepository
 
-    companion object {
-        private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
-    }
+    private val readExternalStorageRequestCode = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // Initialize wodRepository
-        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
-        wodRepository = WodRepository(wodDao)
 
-        initializeUI()
+        initRepository()
+        initUI()
         checkAndRequestPermission()
     }
 
     override fun onResume() {
         super.onResume()
-        loadWods() // Refresh the list of WODs
-    }
-
-    private fun initializeUI() {
-        setupUserDetails()
-        setupLogoutButton()
-        setupRandomButton()
-        setupRecyclerView()
-        setupFloatingActionButton()
-        setupToggleFilter()
         loadWods()
     }
 
-    private fun setupToggleFilter() {
-        toggleFilter = findViewById(R.id.toggle_filter)
-        toggleFilter.setOnCheckedChangeListener { _, isChecked ->
+    private fun initRepository() {
+        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
+        wodRepository = WodRepository(wodDao)
+    }
+
+    private fun initUI() {
+        userDetails = findViewById(R.id.user_details)
+        setUpUserDetails()
+
+        findViewById<Button>(R.id.btn_logout).apply {
+            setOnClickListener { logOut() }
+        }
+
+        setUpRecyclerView()
+        setUpFloatingActionButtons()
+    }
+
+    private fun setUpUserDetails() {
+        userDetails.text = getString(
+            R.string.logged_in_as,
+            UserManager.currentUser?.email ?: getString(R.string.anonymous)
+        )
+    }
+
+    private fun logOut() {
+        UserManager.signOut()
+        redirectToLogin()
+    }
+
+    private fun setUpRecyclerView() {
+        recyclerView = findViewById(R.id.recycler_view_wods)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
+
+        wodAdapter = WodAdapter { wod ->
+            startActivity(Intent(this, WodActivity::class.java).apply {
+                putExtra(WodActivity.EXTRA_WOD_ID, wod.id)
+            })
+        }
+
+        recyclerView.adapter = wodAdapter
+    }
+
+    private fun setUpFloatingActionButtons() {
+        findViewById<FloatingActionButton>(R.id.fab_add_wod).setOnClickListener {
+            startActivity(Intent(this, WodActivity::class.java))
+        }
+
+        findViewById<FloatingActionButton>(R.id.fab_random_wod).setOnClickListener {
+            displayRandomWod()
+        }
+
+        findViewById<ToggleButton>(R.id.toggle_filter).setOnCheckedChangeListener { _, isChecked ->
             loadWods(isChecked)
         }
     }
 
-    private fun setupUserDetails() {
-        userDetails = findViewById(R.id.user_details)
-        userDetails.text =
-            getString(
-                R.string.logged_in_as,
-                UserManager.currentUser?.email ?: getString(R.string.anonymous)
-            )
-    }
-
-    private fun setupLogoutButton() {
-        buttonLogout = findViewById(R.id.btn_logout)
-        buttonLogout.setOnClickListener {
-            UserManager.signOut()
-            redirectToLogin()
-        }
-
-    }
-    private fun setupRandomButton() {
-        fabRandomWod = findViewById(R.id.fab_random_wod)
-        fabRandomWod.setOnClickListener {
-            lifecycleScope.launch {
-                UserManager.currentUser?.let { user ->
-                    val randomWod = wodRepository.getRandomWod(user.uid)
-                    randomWod?.let { wod ->
-                        // Handle the WOD, e.g., show it in full screen
-                        showWodFullScreen(wod)
-                    }
+    private fun displayRandomWod() {
+        lifecycleScope.launch {
+            UserManager.currentUser?.uid?.let { uid ->
+                wodRepository.getRandomWod(uid)?.let { wod ->
+                    showWodFullScreen(wod)
                 }
             }
         }
     }
 
     private fun showWodFullScreen(wod: WOD) {
-        val intent = Intent(this, ShowImageActivity::class.java).apply {
+        startActivity(Intent(this, ShowImageActivity::class.java).apply {
             putExtra("image_uri", wod.picture)
-        }
-        startActivity(intent)
-    }
-
-
-    private fun setupRecyclerView() {
-        recyclerView = findViewById(R.id.recycler_view_wods)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
-        wodAdapter = WodAdapter(onItemClicked = { wod ->
-            val intent = Intent(this, WodActivity::class.java).apply {
-                putExtra(WodActivity.EXTRA_WOD_ID, wod.id)
-            }
-            startActivity(intent)
         })
-        recyclerView.adapter = wodAdapter
-    }
-
-
-    private fun setupFloatingActionButton() {
-        fabAddWod = findViewById(R.id.fab_add_wod)
-        fabAddWod.setOnClickListener {
-            val intent = Intent(this, WodActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     private fun loadWods(filterDoItAgain: Boolean = false) {
-        UserManager.currentUser?.let { user ->
+        UserManager.currentUser?.uid?.let { uid ->
             lifecycleScope.launch {
-                val wods = if (filterDoItAgain) {
-                    wodRepository.getWodsDoItAgain(user.uid)
-                } else {
-                    wodRepository.getWodsByUser(user.uid)
-                }
+                val wods = if (filterDoItAgain) wodRepository.getWodsDoItAgain(uid) else wodRepository.getWodsByUser(uid)
                 wodAdapter.setWods(wods)
             }
         }
     }
 
     private fun checkAndRequestPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_CODE_READ_EXTERNAL_STORAGE
-            )
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), readExternalStorageRequestCode)
         }
     }
 
@@ -163,16 +136,10 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE && grantResults.isNotEmpty()) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                // Handle permission denial
-            }
+        if (requestCode == readExternalStorageRequestCode && grantResults.isNotEmpty() && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            // Handle permission denial
         }
     }
 }
