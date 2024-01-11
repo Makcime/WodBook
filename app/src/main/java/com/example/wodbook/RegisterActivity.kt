@@ -94,8 +94,12 @@ class RegisterActivity : AppCompatActivity() {
                                 .addOnCompleteListener { updateTask ->
                                     if (updateTask.isSuccessful) {
                                         Log.d(TAG, "User profile updated.")
+                                        saveUsername(username)
                                     }
                                 }
+
+                            val sharedPref = getSharedPreferences("MyApp", MODE_PRIVATE)
+                            sharedPref.edit().putString("username", username).apply()
 
                             // go back to login activity
                             val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
@@ -116,4 +120,12 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
+    private fun saveUsername(username: String) {
+        val sharedPref = getSharedPreferences("WodBookPrefs", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("RegisteredUsername", username)
+            apply()
+        }
+    }
+
 }

@@ -81,9 +81,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpUserDetails() {
+        val sharedPref = getSharedPreferences("MyApp", MODE_PRIVATE)
+        val savedUsername = sharedPref.getString("username", null)
+
         userName.text = getString(
             R.string.welcome_user,
-            UserManager.currentUser?.displayName ?: getString(R.string.anonymous)
+            UserManager.currentUser?.displayName ?: savedUsername ?: getString(R.string.anonymous)
         )
 
         userEmail.text = getString(
@@ -91,6 +94,7 @@ class MainActivity : AppCompatActivity() {
             UserManager.currentUser?.email ?: getString(R.string.anonymous)
         )
     }
+
 
     private fun logOut() {
         UserManager.signOut()
