@@ -26,5 +26,7 @@
     <string name="useraccount">Account</string>
     <string name="username">Name</string>
     <string name="user_account">User account</string>
+    <string name="cancel">Cancel</string>
+    <string name="new_password">New password</string>
 
 </resources>
