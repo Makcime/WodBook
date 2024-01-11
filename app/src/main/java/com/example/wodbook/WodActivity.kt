@@ -333,7 +333,7 @@ class WodActivity : AppCompatActivity() {
     private fun loadWodData(wod: WOD) {
         lifecycleScope.launch {
             if (wod != null) {
-                textViewDateTime.setText(wod.dateTime.toString())
+                textViewDateTime.text = wod.dateTime.toString()
                 switchDoItAgain.isChecked = wod.doItAgain
                 editTextNotes.setText(wod.notes)
 
@@ -380,7 +380,6 @@ class WodActivity : AppCompatActivity() {
             }
         }
     }
-
 
 
     private fun redirectToLogin() {
