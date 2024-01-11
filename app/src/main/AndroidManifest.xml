@@ -23,6 +23,9 @@
         android:theme="@style/Theme.Material3.Light"
         tools:targetApi="31">
         <activity
+            android:name=".AccountActivity"
+            android:exported="false" />
+        <activity
             android:name=".ShowImageActivity"
             android:exported="false" />
         <activity
