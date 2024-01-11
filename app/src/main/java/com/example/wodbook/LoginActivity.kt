@@ -22,7 +22,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var buttonLogin: Button
     private lateinit var auth: FirebaseAuth
     private lateinit var progressBar: ProgressBar
-    private lateinit var registerNow : TextView
+    private lateinit var registerNow: TextView
 
     public override fun onStart() {
         super.onStart()

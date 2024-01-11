@@ -14,8 +14,10 @@ import com.example.wodbook.data.WOD
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class WodAdapter(private var wods: List<WOD> = emptyList(),
-                 private val onItemClicked: (WOD) -> Unit) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
+class WodAdapter(
+    private var wods: List<WOD> = emptyList(),
+    private val onItemClicked: (WOD) -> Unit
+) : RecyclerView.Adapter<WodAdapter.WodViewHolder>() {
     // ViewHolder class for each WOD item
     class WodViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.image_view_wod)

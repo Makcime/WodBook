@@ -26,7 +26,7 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideTaskDao(database: WodDatabase) : WodDao = database.wodDao()
+    fun provideTaskDao(database: WodDatabase): WodDao = database.wodDao()
 }
 
 

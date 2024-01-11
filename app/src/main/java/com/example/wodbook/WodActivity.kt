@@ -1,14 +1,18 @@
 package com.example.wodbook
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
@@ -25,20 +29,16 @@ import com.example.wodbook.data.WOD
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import android.app.Activity
-import android.content.ContentValues
-import android.os.Build
-import android.os.Environment
-import androidx.core.content.FileProvider
-import java.io.File
-import java.io.IOException
 
-class AddWodActivity : AppCompatActivity() {
+class WodActivity : AppCompatActivity() {
 
     private lateinit var imageViewPicture: ImageView
     private lateinit var textViewDateTime: TextView
@@ -46,6 +46,7 @@ class AddWodActivity : AppCompatActivity() {
     private lateinit var editTextNotes: EditText
     private lateinit var buttonSaveWod: Button
     private lateinit var buttonDeleteWod: Button
+    private lateinit var buttonEditPicture: FloatingActionButton
 
     private var selectedDateTime: Calendar = Calendar.getInstance()
     private var photoURI: Uri? = null
@@ -65,9 +66,10 @@ class AddWodActivity : AppCompatActivity() {
         private const val REQUEST_CAMERA_AND_STORAGE_PERMISSION = 5
         private const val PICTURES_DIRECTORY = "/Pictures/WodBook"
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_wod)
+        setContentView(R.layout.activity_wod)
 
         initializeUI()
 
@@ -113,10 +115,10 @@ class AddWodActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 wodRepository.deleteWod(wodId)
-                Log.d("AddWodActivity", "WOD deleted successfully")
+                Log.d("WodActivity", "WOD deleted successfully")
                 finish() // Close the activity after deletion
             } catch (e: Exception) {
-                Log.e("AddWodActivity", "Error deleting WOD", e)
+                Log.e("WodActivity", "Error deleting WOD", e)
             }
         }
     }
@@ -132,6 +134,18 @@ class AddWodActivity : AppCompatActivity() {
         buttonSaveWod = findViewById(R.id.buttonSaveWod)
 
         imageViewPicture.setOnClickListener {
+            photoURI?.let { uri ->
+                val intent = Intent(this, ShowImageActivity::class.java).apply {
+                    putExtra("image_uri", uri.toString())
+                }
+                startActivity(intent)
+            } ?: Toast.makeText(this, "No image to show", Toast.LENGTH_SHORT).show()
+        }
+
+
+        // Inside initializeUI() method:
+        buttonEditPicture = findViewById(R.id.buttonEditPicture)
+        buttonEditPicture.setOnClickListener {
             showImagePickerOptions()
         }
 
@@ -152,25 +166,37 @@ class AddWodActivity : AppCompatActivity() {
     }
 
     private fun takePictureFromCamera() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val imageUri = createImageFile()
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             photoURI = imageUri
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
         } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                REQUEST_CAMERA_PERMISSION
+            )
         }
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): Uri {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp: String =
+            SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_${timeStamp}_")
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + "WodBook")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    Environment.DIRECTORY_PICTURES + File.separator + "WodBook"
+                )
             }
         }
 
@@ -179,25 +205,38 @@ class AddWodActivity : AppCompatActivity() {
     }
 
 
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             REQUEST_CAMERA_PERMISSION -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     takePictureFromCamera()
                 } else {
-                    Toast.makeText(this, "Camera permission is required to take pictures.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Camera permission is required to take pictures.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+
             REQUEST_CAMERA_AND_STORAGE_PERMISSION -> {
                 // Check if both permissions have been granted
                 if (grantResults.size >= 2 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED
+                ) {
                     takePictureFromCamera()
                 } else {
-                    Toast.makeText(this, "Camera and Storage permissions are required.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Camera and Storage permissions are required.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             // ... (Handle other permissions if necessary)
@@ -219,7 +258,8 @@ class AddWodActivity : AppCompatActivity() {
             openTimePicker()
         }
 
-        DatePickerDialog(this, dateSetListener,
+        DatePickerDialog(
+            this, dateSetListener,
             selectedDateTime.get(Calendar.YEAR),
             selectedDateTime.get(Calendar.MONTH),
             selectedDateTime.get(Calendar.DAY_OF_MONTH)
@@ -234,7 +274,8 @@ class AddWodActivity : AppCompatActivity() {
             updateDateTimeDisplay()
         }
 
-        TimePickerDialog(this, timeSetListener,
+        TimePickerDialog(
+            this, timeSetListener,
             selectedDateTime.get(Calendar.HOUR_OF_DAY),
             selectedDateTime.get(Calendar.MINUTE), true
         ).show()
@@ -258,7 +299,8 @@ class AddWodActivity : AppCompatActivity() {
             val existingWod = if (wodId != -1) wodRepository.getWodById(wodId) else null
 
             val newPicture = imageViewPicture.tag?.toString() ?: existingWod?.picture ?: ""
-            val newDateTime = if (isDateUpdated) selectedDateTime.time else existingWod?.dateTime ?: Date()
+            val newDateTime =
+                if (isDateUpdated) selectedDateTime.time else existingWod?.dateTime ?: Date()
 
             try {
                 if (wodId == -1) {
@@ -279,10 +321,10 @@ class AddWodActivity : AppCompatActivity() {
                         notes = editTextNotes.text.toString()
                     )
                 }
-                Log.d("AddWodActivity", "WOD saved successfully")
+                Log.d("WodActivity", "WOD saved successfully")
                 finish()
             } catch (e: Exception) {
-                Log.e("AddWodActivity", "Error saving WOD", e)
+                Log.e("WodActivity", "Error saving WOD", e)
             }
         }
     }
@@ -291,7 +333,7 @@ class AddWodActivity : AppCompatActivity() {
     private fun loadWodData(wod: WOD) {
         lifecycleScope.launch {
             if (wod != null) {
-                textViewDateTime.setText(wod.dateTime.toString())
+                textViewDateTime.text = wod.dateTime.toString()
                 switchDoItAgain.isChecked = wod.doItAgain
                 editTextNotes.setText(wod.notes)
 
@@ -299,13 +341,14 @@ class AddWodActivity : AppCompatActivity() {
                     imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground) // Set placeholder
                 } else {
                     val uri = Uri.parse(wod.picture)
+                    photoURI = uri
                     try {
                         contentResolver.openInputStream(uri)?.use { inputStream ->
                             val drawable = Drawable.createFromStream(inputStream, uri.toString())
                             imageViewPicture.setImageDrawable(drawable)
                         }
                     } catch (e: Exception) {
-                        Log.e("AddWodActivity", "Error loading image", e)
+                        Log.e("WodActivity", "Error loading image", e)
                         imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
                     }
                 }
@@ -319,7 +362,6 @@ class AddWodActivity : AppCompatActivity() {
             photoURI?.let { uri ->
                 imageViewPicture.setImageURI(uri)
                 imageViewPicture.tag = uri.toString()
-                // You can now use the uri to store in your WOD model
             }
         } else if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             val selectedImageUri = data.data
@@ -330,8 +372,9 @@ class AddWodActivity : AppCompatActivity() {
                         imageViewPicture.setImageDrawable(drawable)
                         imageViewPicture.tag = uri.toString() // Set the tag to the URI
                     }
+                    photoURI = uri // Update photoURI here
                 } catch (e: Exception) {
-                    Log.e("AddWodActivity", "Error loading image", e)
+                    Log.e("WodActivity", "Error loading image", e)
                     imageViewPicture.setImageResource(R.drawable.ic_placeholder_foreground)
                 }
             }
