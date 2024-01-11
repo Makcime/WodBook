@@ -56,5 +56,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_random_wod"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/random_wod"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_shuffle"
+        app:layout_constraintEnd_toStartOf="@id/fab_add_wod"
+        app:layout_constraintTop_toTopOf="@id/fab_add_wod"
+        app:layout_constraintBottom_toBottomOf="@id/fab_add_wod"
+        android:layout_marginEnd="16dp"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

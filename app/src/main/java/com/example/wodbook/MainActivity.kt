@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wodbook.data.WOD
 import com.example.wodbook.data.WodDatabase
 import com.example.wodbook.data.WodRepository
 import com.example.wodbook.domain.UserManager
@@ -25,7 +26,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var userDetails: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var fabAddWod: FloatingActionButton
+    private lateinit var fabRandomWod: FloatingActionButton
     private lateinit var wodAdapter: WodAdapter
+    private lateinit var wodRepository: WodRepository
 
     companion object {
         private const val REQUEST_CODE_READ_EXTERNAL_STORAGE = 1
@@ -36,6 +39,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         initializeUI()
         checkAndRequestPermission()
+
+        // Initialize wodRepository
+        val wodDao = WodDatabase.getDatabase(applicationContext).wodDao()
+        wodRepository = WodRepository(wodDao)
     }
 
     override fun onResume() {
@@ -46,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeUI() {
         seturUserDetails()
         setupLogoutButton()
+        setupRandomButton()
         setupRecyclerView()
         setupFloatingActionButton()
         loadWods()
@@ -66,7 +74,30 @@ class MainActivity : AppCompatActivity() {
             UserManager.signOut()
             redirectToLogin()
         }
+
     }
+    private fun setupRandomButton() {
+        fabRandomWod = findViewById(R.id.fab_random_wod)
+        fabRandomWod.setOnClickListener {
+            lifecycleScope.launch {
+                UserManager.currentUser?.let { user ->
+                    val randomWod = wodRepository.getRandomWod(user.uid)
+                    randomWod?.let { wod ->
+                        // Handle the WOD, e.g., show it in full screen
+                        showWodFullScreen(wod)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showWodFullScreen(wod: WOD) {
+        val intent = Intent(this, ShowImageActivity::class.java).apply {
+            putExtra("image_uri", wod.picture)
+        }
+        startActivity(intent)
+    }
+
 
     private fun setupRecyclerView() {
         recyclerView = findViewById(R.id.recycler_view_wods)
