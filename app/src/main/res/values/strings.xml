@@ -19,4 +19,7 @@
     <string name="logged_in_as">Logged in as: %1$s</string>
     <string name="confirm_password">Confirm password</string>
     <string name="save_pictures_path">/Pictures/WodBook</string>
+    <string name="random_wod">"Pickup a random wod "</string>
+    <string name="click_to_display_good_wods_only">GOOD WODS ONLY --></string>
+    <string name="no_good_wod_found_to_display">No good WOD found to display.</string>
 </resources>

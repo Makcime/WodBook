@@ -1,6 +1,7 @@
 package com.example.wodbook.data
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.wodbook.data.dao.WodDao
 import java.util.Date
 
@@ -67,6 +68,14 @@ class WodRepository(private val wodDao: WodDao) {
 
     suspend fun getWodById(wodId: Int): WOD? {
         return wodDao.getWodById(wodId)
+    }
+
+    suspend fun getRandomWod(firebaseUid: String): WOD? {
+        return wodDao.getRandomWodByUser(firebaseUid)
+    }
+
+    suspend fun getWodsDoItAgain(firebaseUid: String): List<WOD> {
+        return wodDao.getWodsByUserAndDoItAgain(firebaseUid, true)
     }
 }
 

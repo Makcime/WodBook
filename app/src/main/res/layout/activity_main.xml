@@ -28,23 +28,56 @@
     <View
         android:id="@+id/divider"
         android:layout_width="409dp"
-        android:layout_height="1dp"
+        android:layout_height="3dp"
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_logout" />
 
+    <!-- TextView for the switch label -->
+    <TextView
+        android:id="@+id/textView_switch_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/click_to_display_good_wods_only"
+        app:layout_constraintBottom_toBottomOf="@id/switch_filter"
+        app:layout_constraintTop_toTopOf="@id/switch_filter"
+        app:layout_constraintEnd_toStartOf="@id/switch_filter"
+        android:layout_marginEnd="4dp" />
 
+    <!-- Switch for filtering -->
+    <Switch
+        android:id="@+id/switch_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <!-- Second divider -->
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="409dp"
+        android:layout_height="3dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/switch_filter"
+        android:layout_marginTop="8dp" />
+
+    <!-- RecyclerView for WODs -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_wods"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/fab_add_wod"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/divider"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@id/divider2" />
+
+    <!-- FABs for adding and displaying random WODs -->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_wod"
@@ -55,6 +88,18 @@
         android:src="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_random_wod"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/random_wod"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_shuffle"
+        app:layout_constraintEnd_toStartOf="@id/fab_add_wod"
+        app:layout_constraintTop_toTopOf="@id/fab_add_wod"
+        app:layout_constraintBottom_toBottomOf="@id/fab_add_wod"
+        android:layout_marginEnd="16dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
