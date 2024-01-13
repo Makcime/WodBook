@@ -25,7 +25,8 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var userDetails: TextView
+    private lateinit var userEmail: TextView
+    private lateinit var userName: TextView
     private lateinit var recyclerView: RecyclerView
     private lateinit var switchFilter: Switch
 
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadWods(switchFilter.isChecked)
+        setUpUserDetails()
     }
 
     private fun initRepository() {
@@ -54,11 +56,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initUI() {
-        userDetails = findViewById(R.id.user_details)
+        userEmail = findViewById(R.id.user_email)
+        userName = findViewById(R.id.user_name)
         setUpUserDetails()
 
         findViewById<Button>(R.id.btn_logout).apply {
             setOnClickListener { logOut() }
+        }
+
+        findViewById<Button>(R.id.btn_useraccount).apply {
+            setOnClickListener { redirectToUserAccount() }
         }
 
         setUpRecyclerView()
@@ -74,11 +81,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpUserDetails() {
-        userDetails.text = getString(
+        val sharedPref = getSharedPreferences("MyApp", MODE_PRIVATE)
+        val savedUsername = sharedPref.getString("username", null)
+
+        userName.text = getString(
+            R.string.welcome_user,
+            UserManager.currentUser?.displayName ?: savedUsername ?: getString(R.string.anonymous)
+        )
+
+        userEmail.text = getString(
             R.string.logged_in_as,
             UserManager.currentUser?.email ?: getString(R.string.anonymous)
         )
     }
+
 
     private fun logOut() {
         UserManager.signOut()
@@ -151,6 +167,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun redirectToLogin() {
         startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
+    private fun redirectToUserAccount() {
+        startActivity(Intent(this, AccountActivity::class.java))
         finish()
     }
 

@@ -15,9 +15,11 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
 
 class RegisterActivity : AppCompatActivity() {
 
+    private lateinit var editTextUsername: TextInputEditText
     private lateinit var editTextEmail: TextInputEditText
     private lateinit var editTextPassword: TextInputEditText
     private lateinit var editTextConfirmPassword: TextInputEditText
@@ -32,6 +34,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
         auth = Firebase.auth
 
+        editTextUsername = findViewById(R.id.username)
         editTextEmail = findViewById(R.id.email)
         editTextPassword = findViewById(R.id.password)
         editTextConfirmPassword = findViewById(R.id.confirm_password)
@@ -47,13 +50,14 @@ class RegisterActivity : AppCompatActivity() {
 
         buttonReg.setOnClickListener {
             // Code to be executed when button is clicked
+            val username = editTextUsername.text.toString().trim()
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString().trim()
             val confirmPassword = editTextConfirmPassword.text.toString().trim()
 
             progressBar.visibility = View.VISIBLE
 
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(this, "All fields are required", Toast.LENGTH_LONG).show()
                 progressBar.visibility = View.GONE
                 return@setOnClickListener
@@ -66,7 +70,6 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 // Both fields have input
                 // Toast.makeText(this, "Email: $email\nPassword: $password", Toast.LENGTH_LONG).show()
-
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
                         progressBar.visibility = View.GONE
@@ -74,12 +77,29 @@ class RegisterActivity : AppCompatActivity() {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success")
                             val user = auth.currentUser
+
                             // updateUI(user)
                             Toast.makeText(
                                 baseContext,
                                 "Account created!",
                                 Toast.LENGTH_SHORT,
                             ).show()
+
+                            // Update user name
+                            val profileUpdates = userProfileChangeRequest {
+                                displayName = username
+                            }
+
+                            user!!.updateProfile(profileUpdates)
+                                .addOnCompleteListener { updateTask ->
+                                    if (updateTask.isSuccessful) {
+                                        Log.d(TAG, "User profile updated.")
+                                        saveUsername(username)
+                                    }
+                                }
+
+                            val sharedPref = getSharedPreferences("MyApp", MODE_PRIVATE)
+                            sharedPref.edit().putString("username", username).apply()
 
                             // go back to login activity
                             val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
@@ -98,10 +118,14 @@ class RegisterActivity : AppCompatActivity() {
                         }
                     }
             }
-
-            // Here, you can add more code to handle user registration
-            // For instance, you might want to check if the email and password are valid
-            // and then use them to create a new account in your Firebase project
         }
     }
+    private fun saveUsername(username: String) {
+        val sharedPref = getSharedPreferences("WodBookPrefs", MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString("RegisteredUsername", username)
+            apply()
+        }
+    }
+
 }

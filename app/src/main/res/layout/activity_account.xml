@@ -11,22 +11,34 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="267dp"
-        android:layout_height="220dp"
+        android:layout_width="197dp"
+        android:layout_height="148dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/rounded_shape"
         android:clipToOutline="true"
         android:scaleType="centerCrop"
         app:srcCompat="@drawable/logo" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:gravity="center"
-        android:text="@string/register"
+        android:text="@string/user_account"
         android:textSize="20sp"
         android:textStyle="bold" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            android:enabled="false"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
@@ -40,18 +52,6 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/email" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:endIconMode="password_toggle">
 
@@ -59,7 +59,7 @@
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/password"
+            android:hint="@string/new_password"
             android:inputType="textPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -77,7 +77,6 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-
     <ProgressBar
         android:id="@+id/pgb_register"
         android:layout_width="wrap_content"
@@ -85,19 +84,24 @@
         android:visibility="gone" />
 
     <Button
-        android:id="@+id/btn_register"
+        android:id="@+id/btn_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/submit" />
+        android:text="@string/cancel" />
 
-    <TextView
-        android:id="@+id/loginNow"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:text="@string/click_to_login"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:text="@string/save"
+        />
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete"
+        android:backgroundTint="@color/red"
+        android:textColor="@android:color/white"/>
 
 </LinearLayout>
